@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TwoTable · Partner Venues</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- League Spartan for logo + headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+  :root {
+    --bg: #f8f6f3;
+    --text: #161616;
+    --red: #B80B0B;
+    --grey: #dedad2;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  a { color: inherit; text-decoration: none; }
+  .container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* NAV */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(248,246,243,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(222,218,210,0.7);
+  }
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0;
+  }
+
+  /* logo wordmark exactly "Two Table." */
+  .logo-mark {
+    font-family: "League Spartan", system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+    font-size: 3.0rem;
+  }
+
+  /* Align logo with main content column */
+  header .container {
+    display: flex;
+    align-items: center;
+  }
+  header nav {
+    width: 100%;
+  }
+  .logo-mark {
+    margin-left: -1.5rem;
+  }
+
+  .logo-dot {
+    display: inline-block;
+    width: 0.23em;
+    height: 0.23em;
+    border-radius: 999px;
+    background: #B80B0B;
+    margin-left: 0.02em;
+    vertical-align: baseline;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 0.86rem;
+  }
+  .nav-links span.disabled {
+    color: #aaa;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--red);
+    color: #fff;
+    padding: 0.55rem 1.4rem;
+    font-size: 0.86rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: background 150ms ease, transform 150ms ease,
+      box-shadow 150ms ease;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.08);
+  }
+  .btn-primary:hover {
+    background: #8c080a;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px rgba(0,0,0,0.12);
+  }
+  .btn-link {
+    font-size: 0.86rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      gap: 0.9rem;
+      font-size: 0.8rem;
+    }
+    .nav-links .hide-mobile { display: none; }
+  }
+
+  main section {
+    border-top: 1px solid rgba(222,218,210,0.7);
+  }
+  .section-inner {
+    padding: 4.5rem 0;
+  }
+  h1, h2, h3 {
+    margin: 0;
+    letter-spacing: -0.03em;
+  }
+  h1 {
+    font-family: "League Spartan", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.5rem, 4vw, 3.2rem);
+    line-height: 1.02;
+  }
+  h2 {
+    font-family: "League Spartan", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.9rem, 3vw, 2.3rem);
+    margin-bottom: 1.6rem;
+  }
+  h3 {
+    font-family: "League Spartan", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  p { margin: 0; }
+  .text-sm { font-size: 0.9rem; }
+  .text-xs { font-size: 0.78rem; }
+  .muted { color: #5f5a52; }
+
+  /* HERO */
+  .hero {
+    display: grid;
+    gap: 2.75rem;
+  }
+  @media (min-width: 768px) {
+    .hero {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      align-items: center;
+    }
+  }
+  .badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.5rem;
+  }
+  .hero-sub {
+    font-size: 1rem;
+    color: #514b43;
+    margin-top: 0.85rem;
+    margin-bottom: 1.6rem;
+    max-width: 32rem;
+  }
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    align-items: center;
+  }
+  .hero-card {
+    border-radius: 26px;
+    border: 1px solid rgba(222,218,210,0.9);
+    background: #ffffff;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    padding: 1.6rem 1.5rem;
+    font-size: 0.86rem;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .hero-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .hero-card li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+  .pill {
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+  }
+  .pill-red {
+    background: rgba(184,11,11,0.12);
+    color: var(--red);
+  }
+  .pill-grey {
+    background: #f2efe9;
+    color: #777;
+  }
+
+  /* GRID + CARDS */
+  .card-grid {
+    display: grid;
+    gap: 1.6rem;
+  }
+  @media (min-width: 768px) {
+    .cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  }
+  .card {
+    border-radius: 20px;
+    border: 1px solid rgba(222,218,210,0.9);
+    background: #ffffff;
+    padding: 1.3rem 1.25rem;
+    font-size: 0.9rem;
+    transition: transform 150ms ease, box-shadow 150ms ease,
+      background 150ms ease;
+  }
+  .card-soft {
+    background: var(--bg);
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.06);
+  }
+  .chip {
+    height: 4px;
+    width: 24px;
+    border-radius: 999px;
+    background: var(--red);
+    margin-bottom: 0.55rem;
+  }
+
+  /* appear animation */
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .reveal-visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    transition: opacity 320ms ease, transform 320ms ease;
+  }
+
+  /* FAQ */
+  details {
+    border-radius: 16px;
+    border: 1px solid rgba(222,218,210,0.9);
+    background: var(--bg);
+    padding: 0.65rem 0.9rem;
+    font-size: 0.9rem;
+  }
+  summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  summary::-webkit-details-marker { display: none; }
+
+  /* CTA block */
+  .cta-center {
+    text-align: center;
+  }
+
+  /* Modern form fields */
+  .field {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  .field label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    color: #3b362f;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    background: #ffffff;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--text);
+    transition:
+      border-color 140ms ease,
+      box-shadow 140ms ease,
+      background-color 140ms ease,
+      transform 80ms ease;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 1px rgba(184,11,11,0.18), 0 6px 20px rgba(0,0,0,0.06);
+    background-color: #fdfbfa;
+  }
+
+  @media (hover: hover) {
+    .field input:hover,
+    .field select:hover,
+    .field textarea:hover {
+      border-color: rgba(0,0,0,0.12);
+    }
+  }
+
+  .field textarea {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.4;
+  }
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: #aaa39a;
+  }
+
+  .form-section-label {
+    margin: 1.4rem 0 0.5rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #8b847c;
+    font-weight: 600;
+  }
+
+  /* FOOTER */
+  footer .footer-inner {
+    padding: 1.2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: 0.78rem;
+    color: #6b655d;
+  }
+  @media (min-width: 768px) {
+    footer .footer-inner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+  .footer-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* Strong mobile layout overrides */
+  @media (max-width: 768px) {
+    .container {
+      max-width: 100%;
+      padding: 0 0.75rem;
+    }
+
+    header nav {
+      padding: 0.4rem 0;
+    }
+
+    .logo-mark {
+      font-size: 1.6rem;
+      margin-left: 0;
+    }
+
+    .nav-links {
+      gap: 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .btn-primary {
+      padding: 0.45rem 1.1rem;
+      font-size: 0.8rem;
+    }
+
+    .section-inner {
+      padding: 2.4rem 0;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      line-height: 1.1;
+    }
+
+    h2 {
+      font-size: 1.45rem;
+    }
+
+    .hero-sub {
+      font-size: 0.9rem;
+      margin-top: 0.6rem;
+      margin-bottom: 1.1rem;
+      max-width: 100%;
+    }
+
+    .hero-cta {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.6rem;
+    }
+
+    .hero-cta .btn-primary {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .hero-cta .btn-link {
+      justify-content: center;
+    }
+
+    .hero-card {
+      margin-top: 1.4rem;
+      padding: 1.1rem 1rem;
+      border-radius: 18px;
+      width: 100%;
+    }
+
+    .hero-card li {
+      font-size: 0.85rem;
+    }
+
+    .card {
+      border-radius: 16px;
+      padding: 1.05rem 0.95rem;
+      font-size: 0.85rem;
+    }
+
+    .card-grid {
+      gap: 1.1rem;
+    }
+
+    table.text-sm,
+    table.text-sm th,
+    table.text-sm td {
+      font-size: 0.8rem;
+    }
+
+    footer .footer-inner {
+      padding: 1rem 0 1.3rem;
+    }
+  }
+</style>
+
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header>
+    <div class="container">
+      <nav>
+        <a href="/" class="logo-mark" aria-label="TwoTable Home">
+          Two<br>
+          Table<span class="logo-dot"></span>
+        </a>
+
+        <div class="nav-links">
+          <a href="/" class="hide-mobile">For daters</a>
+          <a href="#venues"><strong>For venues</strong></a>
+          <span class="disabled hide-mobile">For daters (app soon)</span>
+          <a href="#faq" class="hide-mobile">FAQ</a>
+          <button class="btn-primary" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">
+            Become a partner
+          </button>
+        </div>
+
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section id="venues">
+      <div class="container section-inner">
+        <div class="hero">
+          <div>
+            <div class="badge">FOR RESTAURANTS &amp; BARS</div>
+            <h1>Turn quiet evenings into fully booked tables for two.</h1>
+            <p class="hero-sub">
+              TwoTable sends you couples with a confirmed booking and a paid
+              deposit – and pays you automatically after they check in.
+            </p>
+            <div class="hero-cta">
+              <button class="btn-primary" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">
+                Become a partner venue
+              </button>
+              <a href="#escrow" class="btn-link">
+                See how payouts work <span aria-hidden>↗</span>
+              </a>
+            </div>
+            <p class="text-xs muted" style="margin-top:0.7rem;">
+              Early partners in Bristol &amp; London get priority access to new features and promotion inside the app.
+            </p>
+          </div>
+
+          <div>
+            <div class="hero-card">
+              <p class="text-sm" style="font-weight:600;margin-bottom:0.9rem;">
+                Tonight at your venue
+              </p>
+              <ul>
+                <li>
+                  <span>19:00 · Table for two</span>
+                  <span class="pill pill-red">Confirmed</span>
+                </li>
+                <li>
+                  <span>20:30 · Table for two</span>
+                  <span class="pill pill-red">Deposit held</span>
+                </li>
+                <li>
+                  <span>21:15 · Table for two</span>
+                  <span class="pill pill-grey">Awaiting check‑in</span>
+                </li>
+              </ul>
+              <div style="margin-top:1.3rem;padding-top:0.7rem;border-top:1px solid rgba(222,218,210,0.9);display:flex;justify-content:space-between;font-size:0.8rem;color:#6a645c;">
+                <span>Average payout / date</span>
+                <span style="font-weight:600;color:var(--text);">£25–40</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section>
+      <div class="container section-inner">
+        <h2>How TwoTable works for your venue</h2>
+        <div class="card-grid cols-3">
+          <div class="card card-soft reveal">
+            <div class="chip"></div>
+            <h3>Guests book you</h3>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              We show your venue to matched couples. They pick a time, pay a
+              small deposit, and you see the booking in your dashboard.
+            </p>
+          </div>
+          <div class="card card-soft reveal">
+            <div class="chip"></div>
+            <h3>You host the date</h3>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              On the night, your team checks them in with a name or QR code. You
+              serve them like any other table – no extra tech at the bar.
+            </p>
+          </div>
+          <div class="card card-soft reveal">
+            <div class="chip"></div>
+            <h3>You get paid automatically</h3>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              After check‑in, your share of the booking fee is released from
+              escrow straight to you. No chasing, no invoices.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY VENUES SWITCH -->
+    <section>
+      <div class="container section-inner" style="display:flex;flex-direction:column;gap:2.1rem;">
+        <div style="flex:2;">
+          <h2>Why venues switch to TwoTable?</h2>
+          <div class="card-grid cols-3">
+            <div class="card card-soft reveal">
+              <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.35rem;">
+                <span class="logo-dot"></span>
+                <h3>Guaranteed payouts.</h3>
+              </div>
+              <p class="text-sm muted">
+                Every booking includes a fixed payout to your venue, released automatically after check‑in. No unpaid “free drinks”.
+              </p>
+            </div>
+            <div class="card card-soft reveal">
+              <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.35rem;">
+                <span class="logo-dot"></span>
+                <h3>Fewer no‑shows.</h3>
+              </div>
+              <p class="text-sm muted">
+                Deposits and fairness scoring mean our couples turn up. When they don’t, you still recover part of the table value.
+              </p>
+            </div>
+            <div class="card card-soft reveal">
+              <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.35rem;">
+                <span class="logo-dot"></span>
+                <h3>Better use of quiet slots.</h3>
+              </div>
+              <p class="text-sm muted">
+                We steer dates into shoulder times and slower nights, not just Saturday peaks.
+              </p>
+            </div>
+            <div class="card card-soft reveal">
+              <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.35rem;">
+                <span class="logo-dot"></span>
+                <h3>No monthly fee.</h3>
+              </div>
+              <p class="text-sm muted">
+                You only pay us when we send real guests, so it’s risk‑free to try.
+              </p>
+            </div>
+          </div>
+
+          <!-- At-a-glance table -->
+          <table class="text-sm" style="width:100%;border-collapse:collapse;margin-top:1.5rem;">
+            <thead>
+              <tr style="text-align:left;">
+                <th style="padding:0.4rem 0.3rem;border-bottom:1px solid #dedad2;">What you get</th>
+                <th style="padding:0.4rem 0.3rem;border-bottom:1px solid #dedad2;">TwoTable launch offer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:0.35rem 0.3rem;">New couples on quieter nights</td>
+                <td style="padding:0.35rem 0.3rem;">We commit to meaningful date volume across your pilot month, focused on your quieter slots.</td>
+              </tr>
+              <tr>
+                <td style="padding:0.35rem 0.3rem;">No‑show protection</td>
+                <td style="padding:0.35rem 0.3rem;">Deposit‑backed payouts that cut no‑shows and compensate you when guests don’t arrive.</td>
+              </tr>
+              <tr>
+                <td style="padding:0.35rem 0.3rem;">Admin overhead</td>
+                <td style="padding:0.35rem 0.3rem;">We handle matching, deposits, reminders and payouts end‑to‑end.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="flex:1;">
+          <div class="card reveal">
+            <p class="text-sm" style="font-weight:600;margin-bottom:0.45rem;">On an illustrative first month*</p>
+            <ul class="text-sm muted" style="list-style:none;padding:0;margin:0;">
+              <li>• 100+ date bookings routed to your venue network</li>
+              <li>• 40–50% fewer no‑shows vs standard reservations with no deposit</li>
+              <li>• ~£2,500–£4,000 in additional revenue from TwoTable guests, assuming £25–£40 per couple</li>
+            </ul>
+            <p class="text-xs muted" style="margin-top:0.7rem;">
+              *Illustrative figures based on typical UK casual dining and bar spend per couple and deposit models that reduce no‑shows.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESCROW -->
+    <section id="escrow">
+      <div class="container section-inner">
+        <h2>Built‑in no‑show protection</h2>
+        <p class="text-sm muted" style="max-width:640px;margin-bottom:1.9rem;">
+          We hold each couple’s deposit in escrow. When they arrive, it’s used as planned.
+          If they don’t, you get compensated automatically – no awkward conversations,
+          no chasing payments.
+        </p>
+        <div class="card-grid cols-3">
+          <div class="card card-soft reveal">
+            <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.35rem;">
+              <span class="logo-dot"></span>
+              <h3>Both show up</h3>
+            </div>
+            <p class="text-sm muted">
+              You receive your booking payout after check‑in. The couple enjoys their evening; everyone wins.
+            </p>
+          </div>
+          <div class="card card-soft reveal">
+            <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.35rem;">
+              <span class="logo-dot"></span>
+              <h3>One no‑shows</h3>
+            </div>
+            <p class="text-sm muted">
+              The flaking guest loses part of their deposit. A share goes to you for the empty seat.
+            </p>
+          </div>
+          <div class="card card-soft reveal">
+            <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.35rem;">
+              <span class="logo-dot"></span>
+              <h3>Both no‑show</h3>
+            </div>
+            <p class="text-sm muted">
+              You recover more for the fully lost table. No‑shows stop being free for guests.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA BLOCK -->
+    <section id="apply">
+      <div class="container section-inner cta-center">
+        <h2>Ready to try TwoTable at your venue?</h2>
+        <p class="text-sm muted" style="max-width:520px;margin:0.8rem auto 1.7rem;">
+          Tell us a bit about your place and we’ll set you up for a 30‑day pilot –
+          no fees, no lock‑in – with clear payouts and control over how many dates
+          we send you each night.
+        </p>
+        <button class="btn-primary" onclick="document.getElementById('application-form').scrollIntoView({behavior:'smooth'})">
+          Apply to become a partner
+        </button>
+        <p class="text-xs muted" style="margin-top:0.7rem;">
+          We usually reply within 2 business days.
+        </p>
+      </div>
+    </section>
+
+    <!-- APPLICATION FORM -->
+    <section>
+      <div class="container section-inner">
+        <h2>Partner application</h2>
+        <form
+          id="application-form"
+          class="card card-soft"
+          action="https://formspree.io/f/mjggdqeg"
+          method="POST"
+        >
+          <input type="hidden" name="_subject" value="New TwoTable venue application">
+
+          <p class="text-xs muted" style="margin-bottom:0.9rem;">
+            This form helps us understand your venue and design a pilot that actually works for you.
+          </p>
+
+          <p class="form-section-label">About your venue</p>
+          <div class="field">
+            <label for="venue">Venue name*</label>
+            <input id="venue" name="venue" type="text" required />
+          </div>
+          <div class="field">
+            <label for="city">City &amp; postcode*</label>
+            <input id="city" name="city" type="text" required />
+          </div>
+          <div class="field">
+            <label for="type">Venue type*</label>
+            <select id="type" name="type" required>
+              <option value="">Select</option>
+              <option>Restaurant</option>
+              <option>Bar</option>
+              <option>Wine bar</option>
+              <option>Hotel bar</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="web">Website or Instagram</label>
+            <input id="web" name="web" type="text" placeholder="https:// or @handle" />
+          </div>
+
+          <p class="form-section-label">Who should we speak to?</p>
+          <div class="field">
+            <label for="contact">Contact name*</label>
+            <input id="contact" name="contact" type="text" required />
+          </div>
+          <div class="field">
+            <label for="role">Role</label>
+            <input id="role" name="role" type="text" placeholder="Owner, GM, FOH manager…" />
+          </div>
+          <div class="field">
+            <label for="email">Email*</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+          <div class="field">
+            <label for="phone">Phone / WhatsApp</label>
+            <input id="phone" name="phone" type="tel" />
+          </div>
+
+          <p class="form-section-label">When and how we should send dates</p>
+          <div class="field">
+            <label for="nights">Which evenings would you like more dates?</label>
+            <input id="nights" name="nights" type="text" placeholder="e.g. Tue–Thu after 18:00" />
+          </div>
+          <div class="field">
+            <label for="capacity">How many TwoTable dates per night feels comfortable?</label>
+            <input id="capacity" name="capacity" type="text" placeholder="e.g. 3–4 tables for two" />
+          </div>
+          <div class="field">
+            <label for="payout">Ideal minimum payout per completed date (per couple)</label>
+            <input id="payout" name="payout" type="text" placeholder="e.g. £30 per couple" />
+          </div>
+
+          <p class="form-section-label">Anything else?</p>
+          <div class="field">
+            <label for="notes">Anything else we should know?</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Special constraints, preferred days, safety policies…"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary" style="margin-top:0.8rem;">
+            Submit application
+          </button>
+          <p class="text-xs muted" style="margin-top:0.6rem;">
+            By submitting you confirm you’re a hospitality business and agree to be
+            contacted about partnering with TwoTable.
+          </p>
+        </form>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="container section-inner">
+        <h2>Questions from venue owners</h2>
+        <div style="display:flex;flex-direction:column;gap:0.8rem;">
+          <details open>
+            <summary>
+              <span>Do we pay anything to join?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              No. There’s no sign‑up or subscription fee. We only earn when we bring you guests.
+            </p>
+          </details>
+          <details>
+            <summary>
+              <span>How much do we earn per booking?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              We agree a fixed payout per date with you upfront, based on your prices and city.
+              You’ll see the exact amount in your partner agreement and in every booking.
+            </p>
+          </details>
+          <details>
+            <summary>
+              <span>Who pays for the “free” drink?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              Guests pay a small deposit in the app. Your payout comes from that – you’re never
+              funding free drinks out of your own pocket.
+            </p>
+          </details>
+          <details>
+            <summary>
+              <span>What do my staff need to do?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              Simply check the couple in with a name or QR code. Everything else – payments,
+              deposits, fairness scoring – happens behind the scenes.
+            </p>
+          </details>
+          <details>
+            <summary>
+              <span>Can we pause or leave the program?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              Yes. You can pause new TwoTable bookings at any time, and you’re free to end
+              the partnership with 30 days’ notice.
+            </p>
+          </details>
+
+          <!-- New FAQ items -->
+          <details>
+            <summary>
+              <span>How do you choose which venues to work with?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              We look for places that already give guests a good experience: consistent reviews,
+              clear service standards, and quiet slots that you’d like to fill. We’re not trying
+              to flood you with volume – we want a small number of venues that feel right for dates.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              <span>Do we need a separate tablet or new booking system?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              No. Your team just checks the couple in by name or QR code. TwoTable runs alongside
+              whatever reservation system you already use. We’ll only send you bookings for the
+              slots you’ve given us.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              <span>Can we set limits on how many dates you send?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              Yes. As part of your pilot, we agree a comfortable cap per evening
+              (for example 3–4 tables for two). You can update those limits
+              or pause certain days at any time.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              <span>What happens if a couple behaves badly or breaks our rules?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              Your house rules always come first. If there’s a problem, you tell us and we’ll
+              handle follow‑up with the guests. Repeat issues feed into our internal fairness
+              scoring so the same people don’t keep wasting your time.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              <span>How do payouts and invoices work on our side?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              After each check‑in we trigger your fixed payout automatically, batched into
+              regular transfers to your bank account. You’ll receive a clear statement with
+              every transfer showing dates, parties, and payouts – so there’s no manual
+              invoice chasing.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              <span>Is there any exclusivity? Can we use other booking platforms too?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              No exclusivity in the pilot. You can keep using your existing booking systems.
+              We just ask that the slots you give to TwoTable remain available for TwoTable
+              couples so we can guarantee their experience.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              <span>How long does it take to get set up?</span>
+              <span>›</span>
+            </summary>
+            <p class="text-sm muted" style="margin-top:0.45rem;">
+              Most venues are ready in under a week. Once you fill out the partner application,
+              we’ll schedule a short call to understand your space, agree payouts and quiet slots,
+              and then switch on your first dates.
+            </p>
+          </details>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container footer-inner">
+      <div class="logo-mark">
+        Two<br>
+        Table<span class="logo-dot"></span>
+      </div>
+      <div class="footer-links">
+        <a href="#venues">For venues</a>
+        <span style="color:#aaa;cursor:not-allowed;">For daters (soon)</span>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+      <div>
+        <a href="mailto:twotable.uk@gmail.com">twotable.uk@gmail.com</a> · Bristol &amp; London
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll reveal for cards -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const revealEls = document.querySelectorAll(".reveal");
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("reveal-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      revealEls.forEach(el => observer.observe(el));
+    });
+  </script>
+</body>
+</html>
