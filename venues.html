@@ -470,7 +470,6 @@
     }
   }
 </style>
-
 </head>
 <body>
   <!-- NAVBAR -->
@@ -491,7 +490,6 @@
             Become a partner
           </button>
         </div>
-
       </nav>
     </div>
   </header>
@@ -506,7 +504,7 @@
             <h1>Turn quiet evenings into fully booked tables for two.</h1>
             <p class="hero-sub">
               TwoTable sends you couples with a confirmed booking and a paid
-              deposit – and pays you automatically after they check in.
+              deposit – and pays you instanly after they check in.
             </p>
             <div class="hero-cta">
               <button class="btn-primary" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">
@@ -517,34 +515,16 @@
               </a>
             </div>
             <p class="text-xs muted" style="margin-top:0.7rem;">
-              Early partners in Bristol &amp; London get priority access to new features and promotion inside the app.
+              Early partners in London &amp; Bristol get priority access to new features and promotion inside the app.
             </p>
           </div>
 
           <div>
+            <!-- optional hero card (commented out)
             <div class="hero-card">
-              <p class="text-sm" style="font-weight:600;margin-bottom:0.9rem;">
-                Tonight at your venue
-              </p>
-              <ul>
-                <li>
-                  <span>19:00 · Table for two</span>
-                  <span class="pill pill-red">Confirmed</span>
-                </li>
-                <li>
-                  <span>20:30 · Table for two</span>
-                  <span class="pill pill-red">Deposit held</span>
-                </li>
-                <li>
-                  <span>21:15 · Table for two</span>
-                  <span class="pill pill-grey">Awaiting check‑in</span>
-                </li>
-              </ul>
-              <div style="margin-top:1.3rem;padding-top:0.7rem;border-top:1px solid rgba(222,218,210,0.9);display:flex;justify-content:space-between;font-size:0.8rem;color:#6a645c;">
-                <span>Average payout / date</span>
-                <span style="font-weight:600;color:var(--text);">£25–40</span>
-              </div>
+              ...
             </div>
+            -->
           </div>
         </div>
       </div>
@@ -559,8 +539,7 @@
             <div class="chip"></div>
             <h3>Guests book you</h3>
             <p class="text-sm muted" style="margin-top:0.45rem;">
-              We show your venue to matched couples. They pick a time, pay a
-              small deposit, and you see the booking in your dashboard.
+              We show your venue to matched couples. They pick a time, pay a deposit, and you see the booking in your dashboard.
             </p>
           </div>
           <div class="card card-soft reveal">
@@ -576,7 +555,7 @@
             <h3>You get paid automatically</h3>
             <p class="text-sm muted" style="margin-top:0.45rem;">
               After check‑in, your share of the booking fee is released from
-              escrow straight to you. No chasing, no invoices.
+              escrow straight to you instantly. No chasing, no invoices.
             </p>
           </div>
         </div>
@@ -806,6 +785,348 @@
             <textarea id="notes" name="notes" rows="3" placeholder="Special constraints, preferred days, safety policies…"></textarea>
           </div>
 
+                    <!-- Part 1: Economic & Yield Management -->
+          <p class="form-section-label">Part 1 · Economic &amp; yield management (Section 1 of 6)</p>
+
+          <div class="field">
+            <label for="dead_zone_revenue">
+              On a scale of 1–10, how much revenue do you estimate you lose to empty tables on Mon–Wed evenings?
+            </label>
+            <div id="dead_zone_revenue" style="display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.4rem;">
+              <!-- 1–10 as radio buttons in a row -->
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="1"> 1
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="2"> 2
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="3"> 3
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="4"> 4
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="5"> 5
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="6"> 6
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="7"> 7
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="8"> 8
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="9"> 9
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="dead_zone_revenue" value="10"> 10
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="hardest_slots">
+              Which specific time slots are your absolute hardest to fill? (e.g., Tuesday 5:00 PM – 7:00 PM)
+            </label>
+            <input
+              id="hardest_slots"
+              name="hardest_slots"
+              type="text"
+              placeholder="List days and times that are hardest to fill"
+            />
+          </div>
+
+          <div class="field">
+            <label for="cancellation_fee">
+              Do you currently charge a cancellation fee?
+            </label>
+            <select id="cancellation_fee" name="cancellation_fee">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="cancellation_fee_collection">
+              If "Yes", what percentage of the time do you successfully collect it vs. waiving it?
+            </label>
+            <textarea
+              id="cancellation_fee_collection"
+              name="cancellation_fee_collection"
+              rows="3"
+              placeholder="e.g. We successfully collect ~40% of the time and waive ~60%."
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label>
+              We bring you a couple with a guaranteed £30 pre‑paid tab. Would you prefer:
+            </label>
+            <div style="display:flex;flex-direction:column;gap:0.3rem;margin-top:0.3rem;">
+              <label style="font-weight:400;">
+                <input type="radio" name="pricing_preference" value="subscription" />
+                Pay a flat monthly subscription (£X/month) for unlimited bookings
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="pricing_preference" value="commission" />
+                Pay a 12–15% commission per booking (Performance only)
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="pricing_preference" value="value_add" />
+                Pay 0% commission, but offer an exclusive "Value Add" (free dessert/cocktail)
+              </label>
+            </div>
+          </div>
+
+          <!-- Part 2: Technical Integration -->
+          <p class="form-section-label">Part 2 · Technical integration (Section 2 of 6)</p>
+
+          <div class="field">
+            <label for="pos_integration">
+              Does your current POS (e.g., Toast, Micros) allow third‑party integrations?
+            </label>
+            <div id="pos_integration" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
+              <label style="font-weight:400;">
+                <input type="radio" name="pos_integration" value="open_api">
+                Yes, open API
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="pos_integration" value="locked_down">
+                Locked down by head office
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="pos_integration" value="unknown">
+                Unknown
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="tablet_willingness">
+              If we cannot integrate directly, would your staff be willing to use a dedicated "TwoTable Tablet"?
+            </label>
+            <select id="tablet_willingness" name="tablet_willingness">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>Maybe / depends on workflow</option>
+              <option>No</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="connectivity">
+              Do you have reliable 4G/5G signal or guest Wi‑Fi in all areas?
+            </label>
+            <textarea
+              id="connectivity"
+              name="connectivity"
+              rows="3"
+              placeholder="Mention any dead zones or unreliable areas."
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label for="checkin_hardware">
+              Do your floor staff carry handheld terminals/iPads, or rely on a fixed station?
+            </label>
+            <div id="checkin_hardware" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
+              <label style="font-weight:400;">
+                <input type="radio" name="checkin_hardware" value="handheld">
+                Handheld terminals
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="checkin_hardware" value="fixed">
+                Fixed stations
+              </label>
+            </div>
+          </div>
+
+          <!-- Part 3: Operational Flow -->
+          <p class="form-section-label">Part 3 · Operational flow (Section 3 of 6)</p>
+
+          <div class="field">
+            <label for="greeting_protocol">
+              Do you have a dedicated host stand at the entrance, or is it "Seat Yourself"?
+            </label>
+            <div id="greeting_protocol" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
+              <label style="font-weight:400;">
+                <input type="radio" name="greeting_protocol" value="host_stand">
+                Host stand
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="greeting_protocol" value="seat_yourself">
+                Seat yourself
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="bill_splitting">
+              Does your POS easily allow splitting a bill 50/50 on a pre‑paid tab?
+            </label>
+            <textarea
+              id="bill_splitting"
+              name="bill_splitting"
+              rows="3"
+              placeholder="e.g. Yes, simple split tools / No, manual work needed."
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label for="menu_agility">
+              Can your kitchen execute a dynamic "TwoTable Tasting Menu" with 24 hours’ notice?
+            </label>
+            <textarea
+              id="menu_agility"
+              name="menu_agility"
+              rows="3"
+              placeholder="Describe how flexible your menu is for set date-night menus."
+            ></textarea>
+          </div>
+
+          <!-- Part 4: The "Vibe" & Sensory Data -->
+          <p class="form-section-label">Part 4 · The “vibe” &amp; sensory data (Section 4 of 6)</p>
+
+          <div class="field">
+            <label for="acoustic_profile">
+              At 8:00 PM on a Friday, can a couple at a standard table hear each other without raising their voices?
+            </label>
+            <div id="acoustic_profile" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
+              <label style="font-weight:400;">
+                <input type="radio" name="acoustic_profile" value="intimate">
+                Yes (Intimate)
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="acoustic_profile" value="lively">
+                Mostly (Lively)
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="acoustic_profile" value="party">
+                No (Party/Club)
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="seating_inventory">
+              What % of your tables are "Side‑by‑Side" (Bar/Counter) vs. "Face‑to‑Face"?
+            </label>
+            <input
+              id="seating_inventory"
+              name="seating_inventory"
+              type="text"
+              placeholder="e.g. 30% side‑by‑side, 70% face‑to‑face"
+            />
+          </div>
+
+          <div class="field">
+            <label for="private_booths">
+              Do you have "Private/Booth" seating that can be specifically requested via API?
+            </label>
+            <textarea
+              id="private_booths"
+              name="private_booths"
+              rows="3"
+              placeholder="Describe booths, snugs, or private areas."
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label for="lighting_level">
+              How would you describe your evening lighting?
+            </label>
+            <div id="lighting_level" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
+              <label style="font-weight:400;">
+                <input type="radio" name="lighting_level" value="candlelit">
+                Candlelit (Dark)
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="lighting_level" value="warm_dim">
+                Warm Dim
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="lighting_level" value="bright_airy">
+                Bright &amp; Airy
+              </label>
+            </div>
+          </div>
+
+          <!-- Part 5: Safety & Compliance -->
+          <p class="form-section-label">Part 5 · Safety &amp; compliance (Section 5 of 6)</p>
+
+          <div class="field">
+            <label for="angela_alert_destination">
+              If a guest triggers a silent "Help" alarm, where is the best place for that alert to appear?
+            </label>
+            <div id="angela_alert_destination" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
+              <label style="font-weight:400;">
+                <input type="radio" name="angela_alert_destination" value="pos_screen">
+                POS Screen
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="angela_alert_destination" value="manager_tablet">
+                Manager's Tablet
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="angela_alert_destination" value="sms_shift_phone">
+                SMS to Shift Phone
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="exit_infrastructure">
+              Do you have a secondary exit or a clear path to the door that doesn't require walking through main crowd?
+            </label>
+            <textarea
+              id="exit_infrastructure"
+              name="exit_infrastructure"
+              rows="3"
+              placeholder="Describe exits and any safe‑exit routes."
+            ></textarea>
+          </div>
+
+          <!-- Part 6: Payment & Settlement -->
+          <p class="form-section-label">Part 6 · Payment &amp; settlement (Section 6 of 6)</p>
+
+          <div class="field">
+            <label for="payout_preference">
+              For pre‑paid deposits we hold in Escrow, would you require:
+            </label>
+            <div id="payout_preference" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
+              <label style="font-weight:400;">
+                <input type="radio" name="payout_preference" value="instant">
+                Instant Payout
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="payout_preference" value="weekly">
+                Weekly Bulk Settlement
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="payout_preference" value="monthly">
+                Monthly Settlement
+              </label>
+            </div>
+          </div>
+
+          <!-- <div class="field">
+            <label for="tipping_culture">
+              Our "Walk‑Out" feature automatically adds a service charge (12.5%). Is this consistent with your venue's policy?
+            </label>
+            <textarea
+              id="tipping_culture"
+              name="tipping_culture"
+              rows="3"
+              placeholder="Describe your normal service charge and tipping approach."
+            ></textarea>
+          </div> -->
+
+          <!-- End of Part 6 -->
+
           <button type="submit" class="btn-primary" style="margin-top:0.8rem;">
             Submit application
           </button>
@@ -957,7 +1278,6 @@
               and then switch on your first dates.
             </p>
           </details>
-
         </div>
       </div>
     </section>
@@ -1002,3 +1322,4 @@
   </script>
 </body>
 </html>
+ 
