@@ -19,7 +19,7 @@ venue_applications = db["venue_applications"]
 app = FastAPI()
 
 # static/ for logo etc if you need it
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
