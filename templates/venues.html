@@ -88,6 +88,171 @@
     color: #aaa;
     cursor: not-allowed;
   }
+  .vf-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.vf-radio-row label {
+  font-weight: 400;
+}
+/* Venue application form – modern UX */
+
+.venue-form {
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 1.9rem 1.7rem 1.6rem;
+  max-width: 880px;
+  margin: 0 auto 2.6rem auto;
+  box-shadow: 0 20px 45px rgba(0,0,0,0.08);
+}
+
+.vf-section + .vf-section {
+  margin-top: 1.7rem;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding-top: 1.4rem;
+}
+
+.vf-title {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.vf-help {
+  margin: 0 0 0.85rem 0;
+  font-size: 0.86rem;
+  color: #6b655d;
+}
+
+.vf-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1.4rem;
+}
+
+.vf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.vf-field label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #3b362f;
+}
+
+.vf-field input,
+.vf-field textarea,
+.vf-field select {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fdfbf9;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #161616;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    background-color 140ms ease;
+}
+
+.vf-field input:focus,
+.vf-field textarea:focus,
+.vf-field select:focus {
+  outline: none;
+  border-color: #b80b0b;
+  box-shadow: 0 0 0 1px rgba(184,11,11,0.18), 0 6px 18px rgba(0,0,0,0.06);
+  background: #ffffff;
+}
+
+.vf-field textarea {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.vf-field input::placeholder,
+.vf-field textarea::placeholder {
+  color: #aaa39a;
+}
+
+.vf-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.vf-radio-row label {
+  font-weight: 400;
+}
+
+.vf-actions {
+  margin-top: 1.7rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.vf-submit {
+  border: none;
+  border-radius: 999px;
+  padding: 0.75rem 2rem;
+  background: #b80b0b;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+  transition:
+    background 150ms ease,
+    transform 120ms ease,
+    box-shadow 150ms ease;
+}
+
+.vf-submit:hover {
+  background: #8c080a;
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(0,0,0,0.18);
+}
+
+.vf-small {
+  font-size: 0.8rem;
+  color: #6b655d;
+}
+
+@media (max-width: 780px) {
+  .venue-form {
+    padding: 1.5rem 1.15rem 1.3rem;
+    margin-bottom: 2.1rem;
+  }
+  .vf-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.vf-section {
+  margin-bottom: 1.4rem;
+}
+
+.vf-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.vf-field + .vf-field {
+  margin-top: 0.4rem;
+}
+
   .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -710,433 +875,436 @@
     <section>
       <div class="container section-inner">
         <h2>Partner application</h2>
-        <form
+       <form
   id="application-form"
-  class="card card-soft"
+  class="venue-form"
   action="/api/venue-application"
   method="POST"
 >
-  <!-- all your existing fields with the names we used in main.py -->
+  <!-- Section: Venue basics -->
+  <div class="vf-section">
+    <h2 class="vf-title">Your venue</h2>
+    <p class="vf-help">Tell us who you are and where you are.</p>
 
-          <input type="hidden" name="_subject" value="New TwoTable venue application">
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="venue">Venue name*</label>
+        <input id="venue" name="venue" type="text" required />
+      </div>
 
-          <p class="text-xs muted" style="margin-bottom:0.9rem;">
-            This form helps us understand your venue and design a pilot that actually works for you.
-          </p>
+      <div class="vf-field">
+        <label for="city">City / area*</label>
+        <input id="city" name="city" type="text" placeholder="e.g. Bristol, Shoreditch" required />
+      </div>
 
-          <p class="form-section-label">About your venue</p>
-          <div class="field">
-            <label for="venue">Venue name*</label>
-            <input id="venue" name="venue" type="text" required />
-          </div>
-          <div class="field">
-            <label for="city">City &amp; postcode*</label>
-            <input id="city" name="city" type="text" required />
-          </div>
-          <div class="field">
-            <label for="type">Venue type*</label>
-            <select id="type" name="type" required>
-              <option value="">Select</option>
-              <option>Restaurant</option>
-              <option>Bar</option>
-              <option>Wine bar</option>
-              <option>Hotel bar</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="web">Website or Instagram</label>
-            <input id="web" name="web" type="text" placeholder="https:// or @handle" />
-          </div>
+      <div class="vf-field">
+  <label for="type">Venue type*</label>
+  <select id="type" name="type" required>
+    <option value="">Select</option>
+    <option>Cocktail bar</option>
+    <option>Wine bar</option>
+    <option>Casual restaurant</option>
+    <option>Fine dining</option>
+    <option>Hotel bar / lobby</option>
+    <option>Café / coffee bar</option>
+    <option>Other</option>
+  </select>
+</div>
 
-          <p class="form-section-label">Who should we speak to?</p>
-          <div class="field">
-            <label for="contact">Contact name*</label>
-            <input id="contact" name="contact" type="text" required />
-          </div>
-          <div class="field">
-            <label for="role">Role</label>
-            <input id="role" name="role" type="text" placeholder="Owner, GM, FOH manager…" />
-          </div>
-          <div class="field">
-            <label for="email">Email*</label>
-            <input id="email" name="email" type="email" required />
-          </div>
-          <div class="field">
-            <label for="phone">Phone / WhatsApp</label>
-            <input id="phone" name="phone" type="tel" />
-          </div>
 
-          <p class="form-section-label">When and how we should send dates</p>
-          <div class="field">
-            <label for="nights">Which evenings would you like more dates?</label>
-            <input id="nights" name="nights" type="text" placeholder="e.g. Tue–Thu after 18:00" />
-          </div>
-          <div class="field">
-            <label for="capacity">How many TwoTable dates per night feels comfortable?</label>
-            <input id="capacity" name="capacity" type="text" placeholder="e.g. 3–4 tables for two" />
-          </div>
-          <div class="field">
-            <label for="payout">Ideal minimum payout per completed date (per couple)</label>
-            <input id="payout" name="payout" type="text" placeholder="e.g. £30 per couple" />
-          </div>
+      <div class="vf-field">
+        <label for="web">Website or Instagram</label>
+        <input id="web" name="web" type="url" placeholder="https://…" />
+      </div>
+    </div>
+  </div>
 
-          <p class="form-section-label">Anything else?</p>
-          <div class="field">
-            <label for="notes">Anything else we should know?</label>
-            <textarea id="notes" name="notes" rows="3" placeholder="Special constraints, preferred days, safety policies…"></textarea>
-          </div>
+  <!-- Section: Contact -->
+  <div class="vf-section">
+    <h2 class="vf-title">Who should we talk to?</h2>
 
-                    <!-- Part 1: Economic & Yield Management -->
-          <p class="form-section-label">Part 1 · Economic &amp; yield management (Section 1 of 6)</p>
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="contact">Contact name*</label>
+        <input id="contact" name="contact" type="text" required />
+      </div>
 
-          <div class="field">
-            <label for="dead_zone_revenue">
-              On a scale of 1–10, how much revenue do you estimate you lose to empty tables on Mon–Wed evenings?
-            </label>
-            <div id="dead_zone_revenue" style="display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.4rem;">
-              <!-- 1–10 as radio buttons in a row -->
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="1"> 1
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="2"> 2
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="3"> 3
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="4"> 4
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="5"> 5
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="6"> 6
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="7"> 7
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="8"> 8
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="9"> 9
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="dead_zone_revenue" value="10"> 10
-              </label>
-            </div>
-          </div>
+      <div class="vf-field">
+        <label for="role">Role</label>
+        <input id="role" name="role" type="text" placeholder="Owner, GM, FOH manager…" />
+      </div>
 
-          <div class="field">
-            <label for="hardest_slots">
-              Which specific time slots are your absolute hardest to fill? (e.g., Tuesday 5:00 PM – 7:00 PM)
-            </label>
-            <input
-              id="hardest_slots"
-              name="hardest_slots"
-              type="text"
-              placeholder="List days and times that are hardest to fill"
-            />
-          </div>
+      <div class="vf-field">
+        <label for="email">Email*</label>
+        <input id="email" name="email" type="email" required />
+      </div>
 
-          <div class="field">
-            <label for="cancellation_fee">
-              Do you currently charge a cancellation fee?
-            </label>
-            <select id="cancellation_fee" name="cancellation_fee">
-              <option value="">Select</option>
-              <option>Yes</option>
-              <option>No</option>
-            </select>
-          </div>
+      <div class="vf-field">
+        <label for="phone">Phone / WhatsApp*</label>
+        <input id="phone" name="phone" type="tel" required />
+      </div>
+    </div>
+  </div>
 
-          <div class="field">
-            <label for="cancellation_fee_collection">
-              If "Yes", what percentage of the time do you successfully collect it vs. waiving it?
-            </label>
-            <textarea
-              id="cancellation_fee_collection"
-              name="cancellation_fee_collection"
-              rows="3"
-              placeholder="e.g. We successfully collect ~40% of the time and waive ~60%."
-            ></textarea>
-          </div>
+  <!-- Section: Dates & capacity -->
+  <div class="vf-section">
+    <h2 class="vf-title">Dates & capacity</h2>
 
-          <div class="field">
-            <label>
-              We bring you a couple with a guaranteed £30 pre‑paid tab. Would you prefer:
-            </label>
-            <div style="display:flex;flex-direction:column;gap:0.3rem;margin-top:0.3rem;">
-              <label style="font-weight:400;">
-                <input type="radio" name="pricing_preference" value="subscription" />
-                Pay a flat monthly subscription (£X/month) for unlimited bookings
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="pricing_preference" value="commission" />
-                Pay a 12–15% commission per booking (Performance only)
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="pricing_preference" value="value_add" />
-                Pay 0% commission, but offer an exclusive "Value Add" (free dessert/cocktail)
-              </label>
-            </div>
-          </div>
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="nights">Which evenings would you like more dates?*</label>
+        <input id="nights" name="nights" type="text" placeholder="e.g. Tue–Thu after 18:00" required />
+      </div>
 
-          <!-- Part 2: Technical Integration -->
-          <p class="form-section-label">Part 2 · Technical integration (Section 2 of 6)</p>
+      <div class="vf-field">
+        <label for="capacity">How many TwoTable dates per night feels comfortable?*</label>
+        <input id="capacity" name="capacity" type="text" placeholder="e.g. 3–4 tables for two" required/>
+      </div>
 
-          <div class="field">
-            <label for="pos_integration">
-              Does your current POS (e.g., Toast, Micros) allow third‑party integrations?
-            </label>
-            <div id="pos_integration" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
-              <label style="font-weight:400;">
-                <input type="radio" name="pos_integration" value="open_api">
-                Yes, open API
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="pos_integration" value="locked_down">
-                Locked down by head office
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="pos_integration" value="unknown">
-                Unknown
-              </label>
-            </div>
-          </div>
+      <div class="vf-field">
+  <label for="payout">Ideal minimum payout per completed date (per couple)*</label>
+  <select id="payout" name="payout">
+    <option value="">Select a band</option>
+    <option>£10–20</option>
+    <option>£21–30</option>
+    <option>£31–40</option>
+    <option>£41–60</option>
+    <option>£61+</option>
+  </select>
+</div>
 
-          <div class="field">
-            <label for="tablet_willingness">
-              If we cannot integrate directly, would your staff be willing to use a dedicated "TwoTable Tablet"?
-            </label>
-            <select id="tablet_willingness" name="tablet_willingness">
-              <option value="">Select</option>
-              <option>Yes</option>
-              <option>Maybe / depends on workflow</option>
-              <option>No</option>
-            </select>
-          </div>
+    </div>
+  </div>
 
-          <div class="field">
-            <label for="connectivity">
-              Do you have reliable 4G/5G signal or guest Wi‑Fi in all areas?
-            </label>
-            <textarea
-              id="connectivity"
-              name="connectivity"
-              rows="3"
-              placeholder="Mention any dead zones or unreliable areas."
-            ></textarea>
-          </div>
+  <!-- Part 1 · Economic & yield management -->
+  <div class="vf-section">
+    <h2 class="vf-title">Part 1 · Yield & quiet slots</h2>
+    <p class="vf-help">Helps us steer dates into the times that matter most for you.</p>
 
-          <div class="field">
-            <label for="checkin_hardware">
-              Do your floor staff carry handheld terminals/iPads, or rely on a fixed station?
-            </label>
-            <div id="checkin_hardware" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
-              <label style="font-weight:400;">
-                <input type="radio" name="checkin_hardware" value="handheld">
-                Handheld terminals
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="checkin_hardware" value="fixed">
-                Fixed stations
-              </label>
-            </div>
-          </div>
+    <div class="vf-field">
+      <label>
+        On a scale of 1–10, how much revenue do you estimate you lose
+        to empty tables on Mon–Wed evenings?
+      </label>
+      <div class="vf-radio-row">
+        <!-- 1–10 radio buttons, all sharing dead_zone_revenue -->
+        <label><input type="radio" name="dead_zone_revenue" value="1"> 1</label>
+        <label><input type="radio" name="dead_zone_revenue" value="2"> 2</label>
+        <label><input type="radio" name="dead_zone_revenue" value="3"> 3</label>
+        <label><input type="radio" name="dead_zone_revenue" value="4"> 4</label>
+        <label><input type="radio" name="dead_zone_revenue" value="5"> 5</label>
+        <label><input type="radio" name="dead_zone_revenue" value="6"> 6</label>
+        <label><input type="radio" name="dead_zone_revenue" value="7"> 7</label>
+        <label><input type="radio" name="dead_zone_revenue" value="8"> 8</label>
+        <label><input type="radio" name="dead_zone_revenue" value="9"> 9</label>
+        <label><input type="radio" name="dead_zone_revenue" value="10"> 10</label>
+      </div>
+    </div>
 
-          <!-- Part 3: Operational Flow -->
-          <p class="form-section-label">Part 3 · Operational flow (Section 3 of 6)</p>
+    <div class="vf-field">
+      <label for="hardest_slots">
+        Which specific time slots are your absolute hardest to fill?*
+      </label>
+      <input
+        id="hardest_slots"
+        name="hardest_slots"
+        type="text"
+        placeholder="e.g. Tuesday 5–7pm, Sunday after 8pm" required
+      />
+    </div>
 
-          <div class="field">
-            <label for="greeting_protocol">
-              Do you have a dedicated host stand at the entrance, or is it "Seat Yourself"?
-            </label>
-            <div id="greeting_protocol" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
-              <label style="font-weight:400;">
-                <input type="radio" name="greeting_protocol" value="host_stand">
-                Host stand
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="greeting_protocol" value="seat_yourself">
-                Seat yourself
-              </label>
-            </div>
-          </div>
+    <div class="vf-grid">
+  <div class="vf-field">
+    <label for="cancellation_fee">
+      Do you currently charge any cancellation or no‑show fee?*
+    </label>
+    <select id="cancellation_fee" name="cancellation_fee">
+      <option value="">Select</option>
+      <option>No</option>
+      <option>Yes – per guest</option>
+      <option>Yes – per table</option>
+      <option>Yes – depends on time / day</option>
+    </select>
+  </div>
 
-          <div class="field">
-            <label for="bill_splitting">
-              Does your POS easily allow splitting a bill 50/50 on a pre‑paid tab?
-            </label>
-            <textarea
-              id="bill_splitting"
-              name="bill_splitting"
-              rows="3"
-              placeholder="e.g. Yes, simple split tools / No, manual work needed."
-            ></textarea>
-          </div>
+  <div class="vf-field">
+    <label for="cancellation_fee_collection">
+      How do you collect that fee today?
+    </label>
+    <select id="cancellation_fee_collection" name="cancellation_fee_collection">
+      <option value="">Select</option>
+      <option>Card on file via booking system</option>
+      <option>Manual card terminal on arrival</option>
+      <option>Bank transfer / invoice</option>
+      <option>Other</option>
+    </select>
+  </div>
+</div>
 
-          <div class="field">
-            <label for="menu_agility">
-              Can your kitchen execute a dynamic "TwoTable Tasting Menu" with 24 hours’ notice?
-            </label>
-            <textarea
-              id="menu_agility"
-              name="menu_agility"
-              rows="3"
-              placeholder="Describe how flexible your menu is for set date-night menus."
-            ></textarea>
-          </div>
 
-          <!-- Part 4: The "Vibe" & Sensory Data -->
-          <p class="form-section-label">Part 4 · The “vibe” &amp; sensory data (Section 4 of 6)</p>
+    <div class="vf-field">
+      <label for="pricing_preference">
+        Anything we should know about minimum spends or pricing expectations?
+      </label>
+      <textarea
+        id="pricing_preference"
+        name="pricing_preference"
+        rows="3"
+        placeholder="Minimum spends, bundle ideas, what feels fair for a date booking…"
+      ></textarea>
+    </div>
+  </div>
 
-          <div class="field">
-            <label for="acoustic_profile">
-              At 8:00 PM on a Friday, can a couple at a standard table hear each other without raising their voices?
-            </label>
-            <div id="acoustic_profile" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
-              <label style="font-weight:400;">
-                <input type="radio" name="acoustic_profile" value="intimate">
-                Yes (Intimate)
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="acoustic_profile" value="lively">
-                Mostly (Lively)
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="acoustic_profile" value="party">
-                No (Party/Club)
-              </label>
-            </div>
-          </div>
+  <!-- Part 2 · Ops & integration -->
+  <div class="vf-section">
+    <h2 class="vf-title">Part 2 · Operations & systems</h2>
+    <p class="vf-help">So we can fit neatly into how your team already works.</p>
 
-          <div class="field">
-            <label for="seating_inventory">
-              What % of your tables are "Side‑by‑Side" (Bar/Counter) vs. "Face‑to‑Face"?
-            </label>
-            <input
-              id="seating_inventory"
-              name="seating_inventory"
-              type="text"
-              placeholder="e.g. 30% side‑by‑side, 70% face‑to‑face"
-            />
-          </div>
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="pos_integration">
+          What POS / booking system do you use today?
+        </label>
+        <input
+          id="pos_integration"
+          name="pos_integration"
+          type="text"
+          placeholder="e.g. Lightspeed, SevenRooms, ResDiary…"
+        />
+      </div>
 
-          <div class="field">
-            <label for="private_booths">
-              Do you have "Private/Booth" seating that can be specifically requested via API?
-            </label>
-            <textarea
-              id="private_booths"
-              name="private_booths"
-              rows="3"
-              placeholder="Describe booths, snugs, or private areas."
-            ></textarea>
-          </div>
+      <div class="vf-field">
+  <label for="tablet_willingness">
+    Would you be open to a simple tablet or web dashboard at the host stand?
+  </label>
+  <select id="tablet_willingness" name="tablet_willingness">
+    <option value="">Select</option>
+    <option>Yes</option>
+    <option>Yes, if very lightweight</option>
+    <option>No</option>
+  </select>
+</div>
 
-          <div class="field">
-            <label for="lighting_level">
-              How would you describe your evening lighting?
-            </label>
-            <div id="lighting_level" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
-              <label style="font-weight:400;">
-                <input type="radio" name="lighting_level" value="candlelit">
-                Candlelit (Dark)
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="lighting_level" value="warm_dim">
-                Warm Dim
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="lighting_level" value="bright_airy">
-                Bright &amp; Airy
-              </label>
-            </div>
-          </div>
 
-          <!-- Part 5: Safety & Compliance -->
-          <p class="form-section-label">Part 5 · Safety &amp; compliance (Section 5 of 6)</p>
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="connectivity">
+          How reliable is Wi‑Fi / mobile data at the host stand and bar?
+        </label>
+        <input
+          id="connectivity"
+          name="connectivity"
+          type="text"
+          placeholder="e.g. strong Wi‑Fi, patchy data in the back bar, etc."
+        />
+      </div>
 
-          <div class="field">
-            <label for="angela_alert_destination">
-              If a guest triggers a silent "Help" alarm, where is the best place for that alert to appear?
-            </label>
-            <div id="angela_alert_destination" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
-              <label style="font-weight:400;">
-                <input type="radio" name="angela_alert_destination" value="pos_screen">
-                POS Screen
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="angela_alert_destination" value="manager_tablet">
-                Manager's Tablet
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="angela_alert_destination" value="sms_shift_phone">
-                SMS to Shift Phone
-              </label>
-            </div>
-          </div>
+      <div class="vf-field">
+        <label for="checkin_hardware">
+          Anything else we should know about hardware or connectivity?
+        </label>
+        <input
+          id="checkin_hardware"
+          name="checkin_hardware"
+          type="text"
+          placeholder="Shared devices, no spare tablets, etc."
+        />
+      </div>
+    </div>
+  </div>
 
-          <div class="field">
-            <label for="exit_infrastructure">
-              Do you have a secondary exit or a clear path to the door that doesn't require walking through main crowd?
-            </label>
-            <textarea
-              id="exit_infrastructure"
-              name="exit_infrastructure"
-              rows="3"
-              placeholder="Describe exits and any safe‑exit routes."
-            ></textarea>
-          </div>
+  <!-- Part 3 · Service & experience -->
+  <div class="vf-section">
+    <h2 class="vf-title">Part 3 · Service & experience</h2>
+    <p class="vf-help">What does a great first date experience look like in your space?</p>
 
-          <!-- Part 6: Payment & Settlement -->
-          <p class="form-section-label">Part 6 · Payment &amp; settlement (Section 6 of 6)</p>
+    <div class="vf-field">
+      <label for="greeting_protocol">
+        How would you like our couples to be greeted and seated?
+      </label>
+      <textarea
+        id="greeting_protocol"
+        name="greeting_protocol"
+        rows="3"
+        placeholder="Host greeting, quiet tables, any special touches for dates…"
+      ></textarea>
+    </div>
 
-          <div class="field">
-            <label for="payout_preference">
-              For pre‑paid deposits we hold in Escrow, would you require:
-            </label>
-            <div id="payout_preference" style="display:flex;flex-direction:column;gap:0.25rem;margin-top:0.3rem;">
-              <label style="font-weight:400;">
-                <input type="radio" name="payout_preference" value="instant">
-                Instant Payout
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="payout_preference" value="weekly">
-                Weekly Bulk Settlement
-              </label>
-              <label style="font-weight:400;">
-                <input type="radio" name="payout_preference" value="monthly">
-                Monthly Settlement
-              </label>
-            </div>
-          </div>
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="bill_splitting">
+          How do you usually handle bill splitting for couples?
+        </label>
+        <input
+          id="bill_splitting"
+          name="bill_splitting"
+          type="text"
+          placeholder="e.g. separate bills on request, tap to split, etc."
+        />
+      </div>
 
-          <!-- <div class="field">
-            <label for="tipping_culture">
-              Our "Walk‑Out" feature automatically adds a service charge (12.5%). Is this consistent with your venue's policy?
-            </label>
-            <textarea
-              id="tipping_culture"
-              name="tipping_culture"
-              rows="3"
-              placeholder="Describe your normal service charge and tipping approach."
-            ></textarea>
-          </div> -->
+      <div class="vf-field">
+        <label for="menu_agility">
+          Are there any fixed‑price menus or packages we should steer guests towards?
+        </label>
+        <input
+          id="menu_agility"
+          name="menu_agility"
+          type="text"
+          placeholder="e.g. set menu, tasting menu, date‑night special…"
+        />
+      </div>
+    </div>
+  </div>
 
-          <!-- End of Part 6 -->
+  <!-- Part 4 · Atmosphere & layout -->
+  <div class="vf-section">
+    <h2 class="vf-title">Part 4 · Atmosphere & layout</h2>
+    <p class="vf-help">Helps us match the right couples to the right venues.</p>
 
-          <button type="submit" class="btn-primary" style="margin-top:0.8rem;">
-            Submit application
-          </button>
-          <p class="text-xs muted" style="margin-top:0.6rem;">
-            By submitting you confirm you’re a hospitality business and agree to be
-            contacted about partnering with TwoTable.
-          </p>
-        </form>
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="acoustic_profile">
+          How would you describe noise levels on a typical evening?*
+        </label>
+        <input
+          id="acoustic_profile"
+          name="acoustic_profile"
+          type="text"
+          placeholder="e.g. low‑key, buzzy, DJ on weekends…" required
+        />
+      </div>
+
+      <div class="vf-field">
+        <label for="seating_inventory">
+          What kind of seating do you have for tables of two?*
+        </label>
+        <input
+          id="seating_inventory"
+          name="seating_inventory"
+          type="text"
+          placeholder="Booths, bar seating, window tables…" required
+        />
+      </div>
+    </div>
+
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="private_booths">
+          Do you have any more private nooks or booths that work especially well for dates?
+        </label>
+        <input
+          id="private_booths"
+          name="private_booths"
+          type="text"
+          placeholder="Where you’d prefer we seat TwoTable couples"
+        />
+      </div>
+
+      <div class="vf-field">
+        <label for="lighting_level">
+          Anything we should know about lighting or ambience?*
+        </label>
+        <input
+          id="lighting_level"
+          name="lighting_level"
+          type="text"
+          placeholder="Candles, dimmer after 7pm, etc." required
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 5 · Safety & exits -->
+  <div class="vf-section">
+    <h2 class="vf-title">Part 5 · Safety & guest care</h2>
+    <p class="vf-help">So couples feel relaxed and your team feels supported.</p>
+
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="angela_alert_destination">
+          If a guest quietly asks for help (e.g. an “Ask for Angela”‑style signal), who should our team involve?
+        </label>
+        <input
+          id="angela_alert_destination"
+          name="angela_alert_destination"
+          type="text"
+          placeholder="Duty manager, security, specific staff…"
+        />
+      </div>
+
+      <div class="vf-field">
+        <label for="exit_infrastructure">
+          Are there any particular safe exits or waiting areas we should be aware of?
+        </label>
+        <input
+          id="exit_infrastructure"
+          name="exit_infrastructure"
+          type="text"
+          placeholder="e.g. back entrance, cab‑friendly spot, etc."
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 6 · Payouts & tipping -->
+  <div class="vf-section">
+    <h2 class="vf-title">Part 6 · Payouts & tipping</h2>
+    <p class="vf-help">This is how money flows between us, your team, and guests.</p>
+
+    <div class="vf-grid">
+      <div class="vf-field">
+        <label for="payout_preference">
+          How would you prefer to receive payouts from TwoTable?*
+        </label>
+        <input
+          id="payout_preference"
+          name="payout_preference"
+          type="text"
+          placeholder="e.g. weekly bank transfer, monthly reconciliation…" required
+        />
+      </div>
+
+      <div class="vf-field">
+        <label for="tipping_culture">
+          Anything we should know about tipping culture for your staff?
+        </label>
+        <input
+          id="tipping_culture"
+          name="tipping_culture"
+          type="text"
+          placeholder="How service charge / tips are usually handled"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Final: open notes -->
+  <div class="vf-section">
+    <h2 class="vf-title">Anything else?</h2>
+
+    <div class="vf-field">
+      <label for="notes">Anything else we should know?</label>
+      <textarea
+        id="notes"
+        name="notes"
+        rows="3"
+        placeholder="Special constraints, preferred days, house rules, or ideas for how to make this work brilliantly for your team."
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="vf-actions">
+    <button type="submit" class="vf-submit">
+      Submit application
+    </button>
+    <p class="vf-small">
+      We’ll follow up by email within a few days with next steps and a simple pilot outline.
+    </p>
+  </div>
+</form>
+
+
       </div>
     </section>
 
