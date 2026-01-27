@@ -1,0 +1,7 @@
+twotable_app/
+  main.py
+  templates/
+    index.html
+    venues.html
+  static/
+    logo.png   (optional)

@@ -26,14 +26,13 @@
     }
     a { color: inherit; text-decoration: none; }
     .badge {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--red);
-  margin-bottom: 0.5rem;
-}
-
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 0.5rem;
+    }
     .page {
       max-width: 1120px;
       margin: 0 auto;
@@ -42,8 +41,6 @@
       flex-direction: column;
       min-height: 100vh;
     }
-
-    /* Top nav */
     .nav {
       display: flex;
       justify-content: flex-end;
@@ -79,7 +76,6 @@
       transform: translateY(-1px);
       border-color: rgba(0,0,0,0.12);
     }
-
     .nav-cta {
       display: inline-flex;
       align-items: center;
@@ -103,8 +99,6 @@
       transform: translateY(-1px);
       box-shadow: 0 16px 28px rgba(0,0,0,0.18);
     }
-
-    /* Hero layout */
     .hero {
       flex: 0;
       display: flex;
@@ -113,17 +107,14 @@
       margin-bottom: 2.2rem;
     }
     .hero-layout {
-  display: flex;
-  align-items: center;          /* center left + right vertically */
-  justify-content: center;
-  max-width: 920px;
-  margin: 0 auto;
-  gap: 3rem;
-  padding-top: 0.6rem;          /* tiny global push down */
-}
-
-
-    /* Left logo column */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 920px;
+      margin: 0 auto;
+      gap: 3rem;
+      padding-top: 0.6rem;
+    }
     .hero-left {
       display: flex;
       flex-direction: column;
@@ -152,7 +143,6 @@
     .hero-left-dot {
       margin-top: 0.55rem;
     }
-
     .hero-left-tagline {
       margin-top: 0.4rem;
       margin-left: 0.9rem;
@@ -162,8 +152,6 @@
       text-transform: uppercase;
       color: #5b534a;
     }
-
-    /* Divider */
     .hero-divider {
       width: 2px;
       height: 220px;
@@ -171,8 +159,6 @@
       margin-top: 0.7rem;
       margin-left: -1;
     }
-
-    /* Right column */
     .hero-right {
       max-width: 420px;
       flex: 1;
@@ -188,14 +174,11 @@
       margin-bottom: 1.9rem;
       color: #4d463e;
     }
-
     .helper-text {
       margin-top: 0.8rem;
       font-size: 0.8rem;
       color: #6b655d;
     }
-
-    /* Secondary CTA for venues */
     .secondary-cta {
       margin-top: 1.4rem;
     }
@@ -220,7 +203,6 @@
       transform: translateY(-1px);
       box-shadow: 0 10px 22px rgba(0,0,0,0.06);
     }
-
     .btn-primary {
       display: inline-flex;
       align-items: center;
@@ -243,8 +225,6 @@
       transform: translateY(-1px);
       box-shadow: 0 14px 24px rgba(0,0,0,0.12);
     }
-
-    /* Survey section under hero */
     .survey-section {
       margin-top: 0.8rem;
     }
@@ -283,13 +263,11 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
     }
-
     .survey-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.9rem 1.4rem;
     }
-
     .field-group {
       display: flex;
       flex-direction: column;
@@ -301,20 +279,19 @@
       color: #3b362f;
     }
     .survey-input,
-.survey-select {
-  width: 100%;
-  padding: 0.6rem 1.15rem 0.6rem 0.9rem; /* extra right padding for arrow */
-  border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.08);
-  background: #fdfbf9;
-  font-size: 0.86rem;
-  font-family: inherit;
-  transition:
-    border-color 140ms ease,
-    box-shadow 140ms ease,
-    background-color 140ms ease;
-}
-
+    .survey-select {
+      width: 100%;
+      padding: 0.6rem 1.15rem 0.6rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fdfbf9;
+      font-size: 0.86rem;
+      font-family: inherit;
+      transition:
+        border-color 140ms ease,
+        box-shadow 140ms ease,
+        background-color 140ms ease;
+    }
     .survey-input:focus,
     .survey-select:focus {
       outline: none;
@@ -335,8 +312,6 @@
       align-items: center;
       justify-content: flex-start;
     }
-
-    /* Footer */
     .footer {
       margin-top: 3rem;
       font-size: 0.8rem;
@@ -348,8 +323,6 @@
       border-top: 1px solid rgba(0,0,0,0.06);
       padding-top: 1.2rem;
     }
-
-    /* Responsive tweaks */
     @media (max-width: 900px) {
       .hero-layout {
         flex-direction: column;
@@ -365,13 +338,11 @@
         max-width: 100%;
       }
     }
-
     @media (max-width: 700px) {
       .survey-grid {
         grid-template-columns: minmax(0, 1fr);
       }
     }
-
     @media (max-width: 600px) {
       .page {
         padding: 2rem 1.1rem 2.5rem;
@@ -409,11 +380,10 @@
     <header class="nav">
       <div class="nav-links">
         <a href="/" class="nav-pill">Home</a>
-        <a href="/venues.html" class="nav-cta">Want to be a partner?</a>
+        <a href="/venues" class="nav-cta">Want to be a partner?</a>
       </div>
     </header>
 
-    <!-- HERO -->
     <main class="hero">
       <div class="hero-layout">
         <div class="hero-left">
@@ -427,24 +397,21 @@
         <div class="hero-divider"></div>
 
         <div class="hero-right">
-  <div class="badge">FOR DATERS</div>
-  <div class="hero-right-heading">Coming soon to your next date</div>
-
+          <div class="badge">FOR DATERS</div>
+          <div class="hero-right-heading">Coming soon to your next date</div>
           <p class="hero-right-sub">
             We match couples with venues that actually want them there and
             guarantee the booking with a deposit – so dates feel easy, real, and low‑stress.
           </p>
-
           <p class="helper-text">
             We’re starting in Bristol &amp; London. Share how dating feels for you below,
             and we’ll invite you first when TwoTable opens.
           </p>
-
           <div class="secondary-cta">
             <p class="helper-text" style="margin-top:1.2rem;margin-bottom:0.6rem;">
               You run a bar or restaurant?
             </p>
-            <a href="/venues.html" class="btn-ghost">
+            <a href="/venues" class="btn-ghost">
               Partner with TwoTable
             </a>
           </div>
@@ -452,16 +419,9 @@
       </div>
     </main>
 
-    <!-- SURVEY (full width under hero) -->
     <section class="survey-section">
-      <form
-        id="user-survey"
-        class="survey-card"
-        action="https://formspree.io/f/mlggyoob"
-        method="POST"
-      >
+      <form id="user-survey" class="survey-card" action="/api/dater-survey" method="POST">
         <input type="hidden" name="source" value="landing-survey" />
-
         <div class="survey-header">
           <div>
             <div class="survey-title">Tell us what real dating feels like.</div>
@@ -474,7 +434,6 @@
         </div>
 
         <div class="survey-grid">
-          <!-- About you -->
           <div class="field-group">
             <label class="survey-label">Age range*</label>
             <select name="age_range" class="survey-select" required>
@@ -489,12 +448,7 @@
 
           <div class="field-group">
             <label class="survey-label">City / area*</label>
-            <input
-              name="city"
-              class="survey-input"
-              placeholder="e.g. Bristol, Shoreditch"
-              required
-            />
+            <input name="city" class="survey-input" placeholder="e.g. Bristol, Shoreditch" required />
           </div>
 
           <div class="field-group">
@@ -519,7 +473,6 @@
             </select>
           </div>
 
-          <!-- Behaviour & problems -->
           <div class="field-group">
             <label class="survey-label">New dates per month</label>
             <select name="dates_per_month" class="survey-select">
@@ -562,7 +515,6 @@
             ></textarea>
           </div>
 
-          <!-- Venues & TwoTable concept -->
           <div class="field-group">
             <label class="survey-label">Favourite first‑date venues (choose a vibe)</label>
             <select name="venue_type" class="survey-select">
@@ -607,7 +559,6 @@
             ></textarea>
           </div>
 
-          <!-- Open + email -->
           <div class="field-group">
             <label class="survey-label">In one sentence, describe your ideal first date.</label>
             <textarea
