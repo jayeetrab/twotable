@@ -10,9 +10,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGOURI = os.getenv("MONGOURI", "mongodb://localhost:27017")
+MONGO_URI = os.getenv("MONGOURI", "mongodb://localhost:27017")
 
-client = MongoClient(MONGOURI)
+client = MongoClient(MONGO_URI)
 
 # Main product DB
 db = client["TwoTable"]
