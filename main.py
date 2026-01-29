@@ -205,7 +205,7 @@ async def internal_get_zones(city: str):
                 "surveyed_count": {
                     "$sum": {
                         "$cond": [
-                            {"$ne": ["$lastsurveyedat", None]},
+                            {"$ne": ["$last_surveyed_at", None]},
                             1,
                             0,
                         ]
@@ -238,7 +238,7 @@ async def internal_get_postcodes(city: str, zone: str):
                 "surveyed_count": {
                     "$sum": {
                         "$cond": [
-                            {"$ne": ["$lastsurveyedat", None]},
+                            {"$ne": ["$last_surveyed_at", None]},
                             1,
                             0,
                         ]
@@ -268,12 +268,12 @@ async def internal_get_venues(city: str, zone: str, postcode: str):
             "core.name": 1,
             "rating.value": 1,
             "rating.count": 1,
-            "pricelevel": 1,
-            "googlemapsuri": 1,
-            "websiteuri": 1,
-            "lastsurveyedat": 1,
+            "price_level": 1,
+            "google_maps_uri": 1,
+            "website_uri": 1,
+            "last_surveyed_at": 1,
             "survey_priorityscore": 1,
-            "location.formattedaddress": 1,
+            "location.formatted_address": 1,
         },
     ).sort("survey_priorityscore", -1)
 
@@ -289,11 +289,11 @@ async def internal_get_venues(city: str, zone: str, postcode: str):
                 "name": core.get("name"),
                 "rating": rating.get("value"),
                 "user_ratings_total": rating.get("count"),
-                "price_level": d.get("pricelevel"),
-                "google_maps_uri": d.get("googlemapsuri"),
-                "website_uri": d.get("websiteuri"),
-                "address": loc.get("formattedaddress"),
-                "last_surveyed_at": d.get("lastsurveyedat"),
+                "price_level": d.get("price_level"),
+                "google_maps_uri": d.get("google_maps_uri"),
+                "website_uri": d.get("website_uri"),
+                "address": loc.get("formatted_address"),
+                "last_surveyed_at": d.get("last_surveyed_at"),
                 "priority": d.get("survey_priorityscore"),
             }
         )
@@ -317,7 +317,7 @@ async def internal_get_summary(city: str | None = None):
                 "surveyed": {
                     "$sum": {
                         "$cond": [
-                            {"$ne": ["$lastsurveyedat", None]},
+                            {"$ne": ["$last_surveyed_at", None]},
                             1,
                             0,
                         ]
@@ -353,7 +353,7 @@ async def internal_dashboard(city: str | None = None):
                 "surveyed": {
                     "$sum": {
                         "$cond": [
-                            {"$ne": ["$lastsurveyedat", None]},
+                            {"$ne": ["$last_surveyed_at", None]},
                             1,
                             0,
                         ]
@@ -391,7 +391,7 @@ async def internal_dashboard(city: str | None = None):
                 "surveyed": {
                     "$sum": {
                         "$cond": [
-                            {"$ne": ["$lastsurveyedat", None]},
+                            {"$ne": ["$last_surveyed_at", None]},
                             1,
                             0,
                         ]
@@ -496,7 +496,7 @@ async def internal_submit_venue_survey(
 
     venues.update_one(
         {"_id": ObjectId(restaurant_id)},
-        {"$set": {"lastsurveyedat": datetime.utcnow()}},
+        {"$set": {"last_surveyed_at": datetime.utcnow()}},
     )
 
     return {"ok": True}
