@@ -229,10 +229,27 @@ async def venues_by_hierarchy(
     items = []
     for v in venues:
         vid = str(v["_id"])
+
+        # Try to pull a nicer label from photos.authorAttributions[0].displayName
+        display_name = None
+        photos = v.get("photos") or []
+        if photos:
+            attributions = (
+                photos[0].get("authorAttributions")
+                or photos[0].get("author_attributions")
+                or []
+            )
+            if attributions:
+                display_name = attributions[0].get("displayName")
+
         items.append(
             {
                 "id": vid,
-                "name": v.get("core", {}).get("name") or v.get("name"),
+                "name": (
+                    display_name
+                    or v.get("name")
+                    or v.get("core", {}).get("name")
+                ),
                 "address": v.get("location", {}).get("formattedaddress"),
                 "city": v.get("city"),
                 "zone": v.get("zone"),
@@ -240,6 +257,7 @@ async def venues_by_hierarchy(
                 "status": status_map.get(vid, "not_started"),
             }
         )
+
 
     return JSONResponse({"venues": items})
 
