@@ -237,8 +237,8 @@ async def venues_by_hierarchy(
         photos = v.get("photos") or []
         if photos:
             attributions = (
-                photos[0].get("authorAttributions")
-                or photos[0].get("author_attributions")
+                photos[0].get("Attributions")
+                or photos[0].get("attributions")
                 or []
             )
             if attributions:
@@ -249,6 +249,8 @@ async def venues_by_hierarchy(
                 "id": vid,
                 "name": (
                     display_name
+                or v.get("name")                     # e.g. "placesChI..." if nothing else
+                or "Unnamed venue"
                 ),
                 "address": v.get("location", {}).get("formattedaddress"),
                 "city": v.get("city"),
