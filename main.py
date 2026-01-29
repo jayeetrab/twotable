@@ -248,7 +248,7 @@ async def venues_by_hierarchy(
                 "name": (
                     display_name
                     or v.get("name")
-                    or v.get("core", {}).get("name")
+                    or v.get("location", {}).get("shortaddress")
                 ),
                 "address": v.get("location", {}).get("formattedaddress"),
                 "city": v.get("city"),
