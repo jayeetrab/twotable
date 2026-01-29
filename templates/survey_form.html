@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TwoTable · Venue survey</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --text: #161616;
+      --red: #B80B0B;
+      --grey: #dedad2;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 1.3rem;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(248,246,243,0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(222,218,210,0.7);
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+    }
+    .logo-mark {
+      font-family: "League Spartan", system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 0.95;
+      font-size: 1.8rem;
+    }
+    .logo-dot {
+      display: inline-block;
+      width: 0.23em;
+      height: 0.23em;
+      border-radius: 999px;
+      background: var(--red);
+      margin-left: 0.02em;
+      vertical-align: baseline;
+    }
+
+    .btn-secondary-link {
+      font-size: 0.8rem;
+      border-radius: 999px;
+      padding: 0.4rem 0.9rem;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    main {
+      padding: 2.2rem 0 3rem;
+    }
+    h1, h2 {
+      margin: 0;
+      letter-spacing: -0.03em;
+      font-family: "League Spartan", system-ui, sans-serif;
+    }
+    h1 {
+      font-weight: 600;
+      font-size: 1.6rem;
+      line-height: 1.1;
+    }
+    h2 {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin: 0 0 0.35rem 0;
+    }
+    p { margin: 0; }
+    .text-sm { font-size: 0.9rem; }
+    .text-xs { font-size: 0.78rem; }
+    .muted { color: #5f5a52; }
+
+    .pill-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.18rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 500;
+    }
+    .pill-green { background:#ebf9f2;color:#166534; }
+    .pill-amber { background:#fef7e5;color:#92400e; }
+    .pill-grey { background:#f1efea;color:#57534e; }
+
+    .venue-meta {
+      margin-top: 0.4rem;
+      font-size: 0.82rem;
+      color: #6b655d;
+    }
+
+    .survey-shell {
+      margin-top: 1.6rem;
+      border-radius: 22px;
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+      padding: 1.6rem 1.5rem 1.3rem;
+    }
+
+    .vf-section + .vf-section {
+      margin-top: 1.7rem;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      padding-top: 1.4rem;
+    }
+    .vf-help {
+      margin: 0 0 0.9rem 0;
+      font-size: 0.84rem;
+      color: #6b655d;
+    }
+    .vf-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem 1.4rem;
+    }
+    @media (max-width: 720px) {
+      .vf-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .vf-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      font-size: 0.9rem;
+    }
+    .vf-field label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #3b362f;
+    }
+    .vf-field input,
+    .vf-field textarea,
+    .vf-field select {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fdfbf9;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: #161616;
+      transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+    }
+    .vf-field textarea {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.4;
+    }
+    .vf-field input:focus,
+    .vf-field textarea:focus,
+    .vf-field select:focus {
+      outline: none;
+      border-color: var(--red);
+      box-shadow: 0 0 0 1px rgba(184,11,11,0.18), 0 6px 18px rgba(0,0,0,0.06);
+      background: #ffffff;
+    }
+
+    .vf-radio-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem 0.8rem;
+      margin-top: 0.35rem;
+      font-size: 0.82rem;
+    }
+    .vf-radio-row label {
+      font-weight: 400;
+    }
+
+    .vf-actions {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: var(--red);
+      color: #fff;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+      transition: background 150ms ease, transform 120ms ease, box-shadow 150ms ease;
+    }
+    .btn-primary:hover {
+      background: #8c080a;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(0,0,0,0.18);
+    }
+
+    @media (max-width: 640px) {
+      .vf-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-primary,
+      .btn-secondary-link {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a href="/surveys" class="logo-mark">
+          Two<br>Table<span class="logo-dot"></span>
+        </a>
+        <button type="button" class="btn-secondary-link" onclick="window.location.href='/surveys'">
+          ← Back to dashboard
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>
+        Survey: {{ venue.core.name if venue.core and venue.core.name else venue.name }}
+      </h1>
+      <div class="venue-meta">
+        {{ venue.location.formattedaddress if venue.location and venue.location.formattedaddress else "" }}
+        {% if venue.postcode %} · {{ venue.postcode }}{% endif %}
+        {% if venue.city %} · {{ venue.city }}{% endif %}
+      </div>
+      <div class="venue-meta" style="margin-top:0.2rem;">
+        Google place ID: {{ venue.core.google_place_id if venue.core and venue.core.google_place_id else "" }}
+      </div>
+
+      <div style="margin-top:0.7rem;">
+        {% set s = survey.status if survey and survey.status else "not_started" %}
+        {% if s == "completed" %}
+          <span class="pill-status pill-green">Completed</span>
+        {% elif s == "in_progress" %}
+          <span class="pill-status pill-amber">In progress</span>
+        {% else %}
+          <span class="pill-status pill-grey">Not started</span>
+        {% endif %}
+      </div>
+
+      <div class="survey-shell">
+        <form action="/api/venue-surveys" method="POST">
+          <input type="hidden" name="venue_id" value="{{ venue._id }}" />
+
+          <div class="vf-section">
+            <h2>Who is doing this survey?</h2>
+            <p class="vf-help">So we know who to follow up with if something is unclear.</p>
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="surveyor_name">Surveyor name*</label>
+                <input id="surveyor_name" name="surveyor_name" type="text"
+                       value="{{ survey.surveyor_name if survey else '' }}" required />
+              </div>
+              <div class="vf-field">
+                <label for="status">Survey status</label>
+                <select id="status" name="status">
+                  {% set cur = survey.status if survey and survey.status else "completed" %}
+                  <option value="in_progress" {% if cur == "in_progress" %}selected{% endif %}>In progress</option>
+                  <option value="completed" {% if cur == "completed" %}selected{% endif %}>Completed</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dates & capacity -->
+          <div class="vf-section">
+            <h2>Dates & capacity</h2>
+            <p class="vf-help">How many dates, on which nights, feel realistic here?</p>
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="nights">Which evenings would they like more dates?</label>
+                <input id="nights" name="nights" type="text"
+                  placeholder="e.g. Tue–Thu after 18:00"
+                  value="{{ survey.survey.nights if survey and survey.survey and survey.survey.nights else '' }}" />
+              </div>
+              <div class="vf-field">
+                <label for="capacity">Comfortable number of TwoTable dates per night</label>
+                <input id="capacity" name="capacity" type="text"
+                  placeholder="e.g. 3–4 tables for two"
+                  value="{{ survey.survey.capacity if survey and survey.survey and survey.survey.capacity else '' }}" />
+              </div>
+              <div class="vf-field">
+                <label for="payout">Ideal minimum payout per completed date (per couple)</label>
+                <select id="payout" name="payout">
+                  {% set pv = survey.survey.payout if survey and survey.survey and survey.survey.payout else '' %}
+                  <option value="">Select a band</option>
+                  <option value="£10–20" {% if pv == "£10–20" %}selected{% endif %}>£10–20</option>
+                  <option value="£21–30" {% if pv == "£21–30" %}selected{% endif %}>£21–30</option>
+                  <option value="£31–40" {% if pv == "£31–40" %}selected{% endif %}>£31–40</option>
+                  <option value="£41–60" {% if pv == "£41–60" %}selected{% endif %}>£41–60</option>
+                  <option value="£61+" {% if pv == "£61+" %}selected{% endif %}>£61+</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Part 1 -->
+          <div class="vf-section">
+            <h2>Part 1 · Yield & quiet slots</h2>
+            <p class="vf-help">Helps us steer dates into the times that matter most.</p>
+
+            <div class="vf-field">
+              <label>
+                On a scale of 1–10, how much revenue do they lose to empty tables Mon–Wed?
+              </label>
+              {% set dz = survey.survey.dead_zone_revenue if survey and survey.survey and survey.survey.dead_zone_revenue else '' %}
+              <div class="vf-radio-row">
+                {% for i in range(1, 11) %}
+                  <label>
+                    <input type="radio" name="dead_zone_revenue" value="{{ i }}"
+                      {% if dz == i|string %}checked{% endif %}> {{ i }}
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="vf-field">
+              <label for="hardest_slots">Which slots are absolute hardest to fill?</label>
+              <input id="hardest_slots" name="hardest_slots" type="text"
+                placeholder="e.g. Tuesday 5–7pm, Sunday after 8pm"
+                value="{{ survey.survey.hardest_slots if survey and survey.survey and survey.survey.hardest_slots else '' }}" />
+            </div>
+
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="cancellation_fee">Do they charge any cancellation / no‑show fee?</label>
+                {% set cf = survey.survey.cancellation_fee if survey and survey.survey and survey.survey.cancellation_fee else '' %}
+                <select id="cancellation_fee" name="cancellation_fee">
+                  <option value="">Select</option>
+                  <option {% if cf == "No" %}selected{% endif %}>No</option>
+                  <option {% if cf == "Yes – per guest" %}selected{% endif %}>Yes – per guest</option>
+                  <option {% if cf == "Yes – per table" %}selected{% endif %}>Yes – per table</option>
+                  <option {% if cf == "Yes – depends on time / day" %}selected{% endif %}>Yes – depends on time / day</option>
+                </select>
+              </div>
+              <div class="vf-field">
+                <label for="cancellation_fee_collection">How do they collect that fee today?</label>
+                {% set cfc = survey.survey.cancellation_fee_collection if survey and survey.survey and survey.survey.cancellation_fee_collection else '' %}
+                <select id="cancellation_fee_collection" name="cancellation_fee_collection">
+                  <option value="">Select</option>
+                  <option {% if cfc == "Card on file via booking system" %}selected{% endif %}>Card on file via booking system</option>
+                  <option {% if cfc == "Manual card terminal on arrival" %}selected{% endif %}>Manual card terminal on arrival</option>
+                  <option {% if cfc == "Bank transfer / invoice" %}selected{% endif %}>Bank transfer / invoice</option>
+                  <option {% if cfc == "Other" %}selected{% endif %}>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="vf-field">
+              <label for="pricing_preference">Anything about minimum spends or pricing expectations?</label>
+              <textarea id="pricing_preference" name="pricing_preference"
+                placeholder="Minimum spends, bundle ideas, what feels fair for a date booking…">{{ survey.survey.pricing_preference if survey and survey.survey and survey.survey.pricing_preference else '' }}</textarea>
+            </div>
+          </div>
+
+          <!-- Part 2 -->
+          <div class="vf-section">
+            <h2>Part 2 · Operations & systems</h2>
+            <p class="vf-help">So we can fit into how their team already works.</p>
+
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="pos_integration">POS / booking system</label>
+                <input id="pos_integration" name="pos_integration" type="text"
+                  placeholder="e.g. Lightspeed, SevenRooms, ResDiary…"
+                  value="{{ survey.survey.pos_integration if survey and survey.survey and survey.survey.pos_integration else '' }}" />
+              </div>
+              <div class="vf-field">
+                <label for="tablet_willingness">Open to simple tablet / web dashboard at host stand?</label>
+                {% set tw = survey.survey.tablet_willingness if survey and survey.survey and survey.survey.tablet_willingness else '' %}
+                <select id="tablet_willingness" name="tablet_willingness">
+                  <option value="">Select</option>
+                  <option {% if tw == "Yes" %}selected{% endif %}>Yes</option>
+                  <option {% if tw == "Yes, if very lightweight" %}selected{% endif %}>Yes, if very lightweight</option>
+                  <option {% if tw == "No" %}selected{% endif %}>No</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="connectivity">Wi‑Fi / mobile data reliability</label>
+                <input id="connectivity" name="connectivity" type="text"
+                  placeholder="e.g. strong Wi‑Fi, patchy data in back bar…"
+                  value="{{ survey.survey.connectivity if survey and survey.survey and survey.survey.connectivity else '' }}" />
+              </div>
+              <div class="vf-field">
+                <label for="checkin_hardware">Anything else about hardware / connectivity?</label>
+                <input id="checkin_hardware" name="checkin_hardware" type="text"
+                  placeholder="Shared devices, no spare tablets, etc."
+                  value="{{ survey.survey.checkin_hardware if survey and survey.survey and survey.survey.checkin_hardware else '' }}" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Part 3 -->
+          <div class="vf-section">
+            <h2>Part 3 · Service & experience</h2>
+            <p class="vf-help">What does a great first date experience look like in this space?</p>
+
+            <div class="vf-field">
+              <label for="greeting_protocol">How should couples be greeted and seated?</label>
+              <textarea id="greeting_protocol" name="greeting_protocol"
+                placeholder="Host greeting, quiet tables, any special touches for dates…">{{ survey.survey.greeting_protocol if survey and survey.survey and survey.survey.greeting_protocol else '' }}</textarea>
+            </div>
+
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="bill_splitting">How is bill splitting usually handled?</label>
+                <input id="bill_splitting" name="bill_splitting" type="text"
+                  placeholder="e.g. separate bills on request, tap to split, etc."
+                  value="{{ survey.survey.bill_splitting if survey and survey.survey and survey.survey.bill_splitting else '' }}" />
+              </div>
+              <div class="vf-field">
+                <label for="menu_agility">Any fixed‑price menus / packages to steer guests towards?</label>
+                <input id="menu_agility" name="menu_agility" type="text"
+                  placeholder="e.g. set menu, date‑night special…"
+                  value="{{ survey.survey.menu_agility if survey and survey.survey and survey.survey.menu_agility else '' }}" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Part 4 -->
+          <div class="vf-section">
+            <h2>Part 4 · Atmosphere & layout</h2>
+            <p class="vf-help">Helps us match the right couples to the right venues.</p>
+
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="acoustic_profile">Noise levels on a typical evening</label>
+                <input id="acoustic_profile" name="acoustic_profile" type="text"
+                  placeholder="e.g. low‑key, buzzy, DJ on weekends…"
+                  value="{{ survey.survey.acoustic_profile if survey and survey.survey and survey.survey.acoustic_profile else '' }}" />
+              </div>
+              <div class="vf-field">
+                <label for="seating_inventory">Seating for tables of two</label>
+                <input id="seating_inventory" name="seating_inventory" type="text"
+                  placeholder="Booths, bar seating, window tables…"
+                  value="{{ survey.survey.seating_inventory if survey and survey.survey and survey.survey.seating_inventory else '' }}" />
+              </div>
+            </div>
+
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="private_booths">Any private nooks / booths ideal for dates?</label>
+                <input id="private_booths" name="private_booths" type="text"
+                  placeholder="Where you’d prefer we seat TwoTable couples"
+                  value="{{ survey.survey.private_booths if survey and survey.survey and survey.survey.private_booths else '' }}" />
+              </div>
+              <div class="vf-field">
+                <label for="lighting_level">Anything to know about lighting / ambience?</label>
+                <input id="lighting_level" name="lighting_level" type="text"
+                  placeholder="Candles, dimmer after 7pm, etc."
+                  value="{{ survey.survey.lighting_level if survey and survey.survey and survey.survey.lighting_level else '' }}" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Part 5 -->
+          <div class="vf-section">
+            <h2>Part 5 · Safety & guest care</h2>
+            <p class="vf-help">So couples feel relaxed and the team feels supported.</p>
+
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="angela_alert_destination">
+                  If a guest quietly asks for help (“Ask for Angela”), who should be involved?
+                </label>
+                <input id="angela_alert_destination" name="angela_alert_destination" type="text"
+                  placeholder="Duty manager, security, specific staff…"
+                  value="{{ survey.survey.angela_alert_destination if survey and survey.survey and survey.survey.angela_alert_destination else '' }}" />
+              </div>
+              <div class="vf-field">
+                <label for="exit_infrastructure">Any safe exits / waiting areas?</label>
+                <input id="exit_infrastructure" name="exit_infrastructure" type="text"
+                  placeholder="e.g. back entrance, cab‑friendly spot, etc."
+                  value="{{ survey.survey.exit_infrastructure if survey and survey.survey and survey.survey.exit_infrastructure else '' }}" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Part 6 -->
+          <div class="vf-section">
+            <h2>Part 6 · Payouts & tipping</h2>
+            <p class="vf-help">How money flows between TwoTable, the venue and staff.</p>
+
+            <div class="vf-grid">
+              <div class="vf-field">
+                <label for="payout_preference">Preferred payout schedule</label>
+                <input id="payout_preference" name="payout_preference" type="text"
+                  placeholder="e.g. weekly bank transfer, monthly reconciliation…"
+                  value="{{ survey.survey.payout_preference if survey and survey.survey and survey.survey.payout_preference else '' }}" />
+              </div>
+              <div class="vf-field">
+                <label for="tipping_culture">Anything to know about tipping / service charge?</label>
+                <input id="tipping_culture" name="tipping_culture" type="text"
+                  placeholder="How service charge / tips are usually handled"
+                  value="{{ survey.survey.tipping_culture if survey and survey.survey and survey.survey.tipping_culture else '' }}" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="vf-section">
+            <h2>Anything else?</h2>
+            <div class="vf-field">
+              <label for="notes">Extra observations or house rules</label>
+              <textarea id="notes" name="notes"
+                placeholder="Special constraints, house rules, ideas to make dates work brilliantly here.">{{ survey.survey.notes if survey and survey.survey and survey.survey.notes else '' }}</textarea>
+            </div>
+          </div>
+
+          <div class="vf-actions">
+            <button type="submit" class="btn-primary">Save survey</button>
+            <span class="text-xs muted">
+              Changes are stored in the internal <code>venue_surveys</code> collection.
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

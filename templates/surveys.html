@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TwoTable · Survey dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --text: #161616;
+      --red: #B80B0B;
+      --grey: #dedad2;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(248,246,243,0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(222,218,210,0.7);
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+    }
+    .logo-mark {
+      font-family: "League Spartan", system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 0.95;
+      font-size: 2rem;
+    }
+    .logo-dot {
+      display: inline-block;
+      width: 0.23em;
+      height: 0.23em;
+      border-radius: 999px;
+      background: var(--red);
+      margin-left: 0.02em;
+      vertical-align: baseline;
+    }
+    .nav-note {
+      font-size: 0.78rem;
+      color: #6b655d;
+    }
+
+    main {
+      border-top: 1px solid rgba(222,218,210,0.7);
+    }
+    .section-inner {
+      padding: 2.6rem 0 3rem;
+      display: grid;
+      gap: 2rem;
+    }
+    @media (min-width: 900px) {
+      .section-inner {
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+        align-items: flex-start;
+      }
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      letter-spacing: -0.03em;
+      font-family: "League Spartan", system-ui, sans-serif;
+    }
+    h1 {
+      font-weight: 700;
+      font-size: clamp(2rem, 3vw, 2.5rem);
+      line-height: 1.05;
+    }
+    h2 {
+      font-weight: 600;
+      font-size: 1.35rem;
+      margin-bottom: 0.4rem;
+    }
+    h3 {
+      font-weight: 600;
+      font-size: 1.02rem;
+    }
+    p { margin: 0; }
+    .text-sm { font-size: 0.9rem; }
+    .text-xs { font-size: 0.78rem; }
+    .muted { color: #5f5a52; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--red);
+      background: rgba(184,11,11,0.08);
+      margin-bottom: 0.6rem;
+    }
+
+    .pill-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.18rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 500;
+    }
+    .pill-green {
+      background: #ebf9f2;
+      color: #166534;
+    }
+    .pill-amber {
+      background: #fef7e5;
+      color: #92400e;
+    }
+    .pill-grey {
+      background: #f1efea;
+      color: #57534e;
+    }
+
+    .card {
+      border-radius: 22px;
+      border: 1px solid rgba(222,218,210,0.9);
+      background: #ffffff;
+      padding: 1.3rem 1.3rem 1.2rem;
+      font-size: 0.9rem;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.08);
+    }
+    .card + .card {
+      margin-top: 0.9rem;
+    }
+
+    .city-grid {
+      display: grid;
+      gap: 0.9rem;
+    }
+    @media (min-width: 640px) {
+      .city-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .city-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.45rem;
+    }
+    .city-name {
+      font-weight: 600;
+      font-size: 0.98rem;
+    }
+    .progress-shell {
+      position: relative;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #f2efe9;
+      overflow: hidden;
+      margin-top: 0.3rem;
+    }
+    .progress-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--red), #f97316);
+      width: 0%;
+      transition: width 220ms ease-out;
+    }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.35rem;
+      font-size: 0.8rem;
+      color: #6b655d;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .sidebar-section h2 {
+      margin-bottom: 0.6rem;
+    }
+
+    .selector-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .chip-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.06);
+      padding: 0.35rem 0.85rem;
+      font-size: 0.8rem;
+      background: #faf7f2;
+      cursor: pointer;
+      transition: background 150ms ease, border-color 150ms ease, transform 120ms ease;
+    }
+    .chip-btn:hover {
+      background: #f1ece5;
+      border-color: rgba(0,0,0,0.12);
+      transform: translateY(-1px);
+    }
+    .chip-btn.is-active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #ffffff;
+    }
+
+    .venue-list {
+      margin-top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    .venue-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 0.55rem 0.1rem;
+      border-bottom: 1px solid rgba(222,218,210,0.6);
+      font-size: 0.86rem;
+    }
+    .venue-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.12rem;
+    }
+    .venue-name {
+      font-weight: 500;
+    }
+    .venue-meta {
+      font-size: 0.78rem;
+      color: #6b655d;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: var(--red);
+      color: #fff;
+      padding: 0.45rem 1.1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background 150ms ease, transform 120ms ease, box-shadow 150ms ease;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+      white-space: nowrap;
+    }
+    .btn-primary:hover {
+      background: #8c080a;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 24px rgba(0,0,0,0.14);
+    }
+
+    .empty-state {
+      font-size: 0.84rem;
+      color: #6b655d;
+      padding: 0.4rem 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a href="/" class="logo-mark" aria-label="TwoTable Home">
+          Two<br>Table<span class="logo-dot"></span>
+        </a>
+        <div class="nav-note">
+          Internal survey dashboard · not visible to guests
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container section-inner">
+      <!-- LEFT: overview -->
+      <section>
+        <div class="badge">Survey overview</div>
+        <h1>Plan which venues to visit next.</h1>
+        <p class="text-sm muted" style="margin-top:0.7rem;max-width:30rem;">
+          Use cities, zones and postcodes to see where surveys are complete, what is in progress,
+          and how many venues are still left. Tap into a venue to open the full survey.
+        </p>
+
+        <div style="margin-top:1.5rem;">
+          <h2>Cities</h2>
+          <div id="city-grid" class="city-grid">
+            <!-- city cards injected here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: drill-down -->
+      <aside class="sidebar">
+        <div class="sidebar-section card">
+          <h2>Filter by area</h2>
+          <p class="text-xs muted">Choose a city, then zone, then postcode to see venues.</p>
+
+          <div style="margin-top:0.8rem;">
+            <div class="text-xs muted" style="margin-bottom:0.25rem;">City</div>
+            <div id="city-filter" class="selector-row"></div>
+          </div>
+
+          <div style="margin-top:0.8rem;">
+            <div class="text-xs muted" style="margin-bottom:0.25rem;">Zone</div>
+            <div id="zone-filter" class="selector-row"></div>
+          </div>
+
+          <div style="margin-top:0.8rem;">
+            <div class="text-xs muted" style="margin-bottom:0.25rem;">Postcode</div>
+            <div id="postcode-filter" class="selector-row"></div>
+          </div>
+        </div>
+
+        <div class="sidebar-section card">
+          <h2>Venues in selection</h2>
+          <div id="venue-list" class="venue-list">
+            <div class="empty-state">Choose a city and zone to see venues.</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    let overviewData = null;
+    let currentCity = null;
+    let currentZone = null;
+    let currentPostcode = null;
+
+    function statusToLabel(status) {
+      if (status === "completed") return { label: "Completed", cls: "pill-green" };
+      if (status === "in_progress") return { label: "In progress", cls: "pill-amber" };
+      return { label: "Not started", cls: "pill-grey" };
+    }
+
+    async function loadOverview() {
+      const res = await fetch("/api/survey-overview");
+      overviewData = await res.json();
+      renderCities();
+      renderCityFilter();
+    }
+
+    function renderCities() {
+      const host = document.getElementById("city-grid");
+      host.innerHTML = "";
+
+      overviewData.by_city.forEach((c) => {
+        const completed = c.completed || 0;
+        const total = c.total || 0;
+        const percent = total ? Math.round((completed / total) * 100) : 0;
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <div class="city-card-header">
+            <div>
+              <div class="city-name">${c.city}</div>
+              <div class="progress-shell">
+                <div class="progress-bar" style="width:${percent}%;"></div>
+              </div>
+            </div>
+            <div class="text-xs muted">
+              ${completed}/${total} surveyed
+            </div>
+          </div>
+          <div class="metric-row">
+            <span>Remaining: <strong>${total - completed}</strong></span>
+            <span class="text-xs muted">${percent}% complete</span>
+          </div>
+        `;
+
+        card.addEventListener("click", () => {
+          currentCity = c.city;
+          currentZone = null;
+          currentPostcode = null;
+          renderCityFilter();
+          renderZoneFilter();
+          renderPostcodeFilter();
+          loadVenues();
+        });
+
+        host.appendChild(card);
+      });
+    }
+
+    function renderCityFilter() {
+      const host = document.getElementById("city-filter");
+      host.innerHTML = "";
+
+      overviewData.by_city.forEach((c) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip-btn" + (c.city === currentCity ? " is-active" : "");
+        btn.textContent = `${c.city}`;
+        btn.onclick = () => {
+          currentCity = c.city;
+          currentZone = null;
+          currentPostcode = null;
+          renderCityFilter();
+          renderZoneFilter();
+          renderPostcodeFilter();
+          loadVenues();
+        };
+        host.appendChild(btn);
+      });
+    }
+
+    function renderZoneFilter() {
+      const host = document.getElementById("zone-filter");
+      host.innerHTML = "";
+
+      if (!currentCity) {
+        host.innerHTML = '<span class="text-xs muted">Select a city first.</span>';
+        return;
+      }
+
+      const zones = overviewData.by_city_zone
+        .filter((z) => z.city === currentCity)
+        .sort((a, b) => a.zone.localeCompare(b.zone));
+
+      zones.forEach((z) => {
+        const remaining = (z.total || 0) - (z.completed || 0);
+        const label = `${z.zone} (${remaining} left)`;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip-btn" + (z.zone === currentZone ? " is-active" : "");
+        btn.textContent = label;
+        btn.onclick = () => {
+          currentZone = z.zone;
+          currentPostcode = null;
+          renderZoneFilter();
+          renderPostcodeFilter();
+          loadVenues();
+        };
+        host.appendChild(btn);
+      });
+
+      if (!zones.length) {
+        host.innerHTML = '<span class="text-xs muted">No zones for this city.</span>';
+      }
+    }
+
+    function renderPostcodeFilter() {
+      const host = document.getElementById("postcode-filter");
+      host.innerHTML = "";
+
+      if (!currentCity || !currentZone) {
+        host.innerHTML = '<span class="text-xs muted">Select a city & zone.</span>';
+        return;
+      }
+
+      const pcs = overviewData.by_city_zone_postcode
+        .filter((p) => p.city === currentCity && p.zone === currentZone)
+        .sort((a, b) => a.postcode.localeCompare(b.postcode));
+
+      pcs.forEach((p) => {
+        const remaining = (p.total || 0) - (p.completed || 0);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip-btn" + (p.postcode === currentPostcode ? " is-active" : "");
+        btn.textContent = `${p.postcode} (${remaining} left)`;
+        btn.onclick = () => {
+          currentPostcode = p.postcode;
+          renderPostcodeFilter();
+          loadVenues();
+        };
+        host.appendChild(btn);
+      });
+
+      if (!pcs.length) {
+        host.innerHTML = '<span class="text-xs muted">No postcodes in this zone.</span>';
+      }
+    }
+
+    async function loadVenues() {
+      const host = document.getElementById("venue-list");
+      host.innerHTML = '<div class="text-xs muted">Loading venues…</div>';
+
+      if (!currentCity) {
+        host.innerHTML = '<div class="empty-state">Choose a city and zone to see venues.</div>';
+        return;
+      }
+
+      const params = new URLSearchParams({ city: currentCity });
+      if (currentZone) params.set("zone", currentZone);
+      if (currentPostcode) params.set("postcode", currentPostcode);
+
+      const res = await fetch(`/api/venues-by-hierarchy?${params.toString()}`);
+      const data = await res.json();
+
+      if (!data.venues.length) {
+        host.innerHTML = '<div class="empty-state">No venues found for this selection.</div>';
+        return;
+      }
+
+      host.innerHTML = "";
+      data.venues.forEach((v) => {
+        const row = document.createElement("div");
+        row.className = "venue-row";
+
+        const statusMeta = statusToLabel(v.status);
+
+        row.innerHTML = `
+          <div class="venue-main">
+            <div class="venue-name">${v.name || "Unnamed venue"}</div>
+            <div class="venue-meta">
+              ${v.postcode || ""} · ${v.zone || ""} · ${v.city || ""}
+            </div>
+            ${v.address ? `<div class="venue-meta">${v.address}</div>` : ""}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;">
+            <span class="pill-status ${statusMeta.cls}">${statusMeta.label}</span>
+            <a href="/surveys/${v.id}" class="btn-primary">Open survey</a>
+          </div>
+        `;
+
+        host.appendChild(row);
+      });
+    }
+
+    loadOverview();
+  </script>
+</body>
+</html>
