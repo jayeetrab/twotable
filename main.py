@@ -127,6 +127,7 @@ async def survey_overview():
             {},
             {
                 "_id": 1,
+                "core.name": 1,
                 "city": 1,
                 "zone": 1,
                 "postcode": 1,
@@ -233,25 +234,13 @@ async def venues_by_hierarchy(
         vid = str(v["_id"])
 
         # Try to pull a nicer label from photos.authorAttributions[0].displayName
-        display_name = None
-        photos = v.get("photos") or []
-        if photos:
-            attributions = (
-                photos[0].get("Attributions")
-                or photos[0].get("attributions")
-                or []
-            )
-            if attributions:
-                display_name = attributions[0].get("displayName")
+        core = v.get("core", {}) or {}
+        display_name = core.get("name") or v.get("name") or "Unnamed venue"
 
         items.append(
             {
                 "id": vid,
-                "name": (
-                    display_name
-                or v.get("name")                     # e.g. "placesChI..." if nothing else
-                or "Unnamed venue"
-                ),
+                "name": display_name,
                 "address": v.get("location", {}).get("formattedaddress"),
                 "city": v.get("city"),
                 "zone": v.get("zone"),
