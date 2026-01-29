@@ -200,7 +200,7 @@ async def venues_by_hierarchy(
     zone: Optional[str] = None,
     postcode: Optional[str] = None,
 ):
-    venues_coll = db["venues"]
+    venues_coll = db["venues_v2"]
 
     query = {"city": city}
     if zone:
