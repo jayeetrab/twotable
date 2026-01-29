@@ -208,18 +208,20 @@ async def venues_by_hierarchy(
         query["postcode"] = postcode
 
     venues = list(
-        venues_coll.find(
-            query,
-            {
-                "_id": 1,
-                "core.name": 1,
-                "location.formattedaddress": 1,
-                "city": 1,
-                "zone": 1,
-                "postcode": 1,
-            },
-        )
+    venues_coll.find(
+        query,
+        {
+            "_id": 1,
+            "photos": 1,                      # add this
+            "location.formattedaddress": 1,
+            "city": 1,
+            "zone": 1,
+            "postcode": 1,
+        },
     )
+)
+
+
 
     # Map survey status
     status_map = {}
