@@ -3,7 +3,6 @@ from datetime import datetime
 
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pymongo import MongoClient
 from bson import ObjectId
@@ -11,24 +10,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = os.getenv("MONGOURI", "mongodb://localhost:27017")
 
 client = MongoClient(MONGO_URI)
-db = client["TwoTable"]  # this is the DB name you should open in Compass
+
+# Main product DB
+db = client["TwoTable"]  # as in Compass
 
 # Existing collections
-datingsurvey = db["datingsurveysubmissions"]
-venueapplications = db["venueapplications"]
+datingsurvey = db["dating_survey_submissions"]
+venueapplications = db["venue_applications"]
+venues = db["venues"]  # 1.4k restaurants, has city / postcode / zone
 
-# New collections for survey app
-venues = db["venues"]  # your Google Places venues collection
-venue_surveys = db["venue_surveys"]  # new collection for survey responses
+# Separate DB just for field surveys
+survey_db = client["TwoTable_surveys"]
+venue_surveys = survey_db["venue_surveys"]
 
 app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
-
-# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 TITLE = "TwoTable"
 
@@ -51,7 +51,7 @@ async def get_internal_surveys(request: Request):
     return templates.TemplateResponse("survey_app.html", {"request": request})
 
 
-# ---------- API 1: Dater survey ----------
+# ---------- API 1: Dater survey (unchanged semantics) ----------
 
 @app.post("/api/dater-survey")
 async def submit_dater_survey(
@@ -95,7 +95,7 @@ async def submit_dater_survey(
     return RedirectResponse(url="/?submitted=1", status_code=303)
 
 
-# ---------- API 2: Venue application ----------
+# ---------- API 2: Partner venue application (unchanged semantics) ----------
 
 @app.post("/api/venue-application")
 async def submit_venue_application(
@@ -181,12 +181,11 @@ async def submit_venue_application(
     return RedirectResponse(url="/venues?submitted=1", status_code=303)
 
 
-# ---------- API 3: Internal survey app (JSON) ----------
+# ---------- API 3: Internal survey app (JSON for UI) ----------
 
 @app.get("/api/internal/cities", response_class=JSONResponse)
 async def internal_get_cities():
     pipeline = [
-        {"$match": {"includedinsurvey": True}},
         {"$group": {"_id": "$city", "restaurant_count": {"$sum": 1}}},
         {"$sort": {"_id": 1}},
     ]
@@ -194,6 +193,7 @@ async def internal_get_cities():
     cities = [
         {"city": d["_id"], "restaurant_count": d["restaurant_count"]}
         for d in data
+        if d["_id"] is not None
     ]
     return {"cities": cities}
 
@@ -201,7 +201,7 @@ async def internal_get_cities():
 @app.get("/api/internal/zones", response_class=JSONResponse)
 async def internal_get_zones(city: str):
     pipeline = [
-        {"$match": {"city": city, "includedinsurvey": True}},
+        {"$match": {"city": city}},
         {
             "$group": {
                 "_id": "$zone",
@@ -234,7 +234,7 @@ async def internal_get_zones(city: str):
 @app.get("/api/internal/postcodes", response_class=JSONResponse)
 async def internal_get_postcodes(city: str, zone: str):
     pipeline = [
-        {"$match": {"city": city, "zone": zone, "includedinsurvey": True}},
+        {"$match": {"city": city, "zone": zone}},
         {
             "$group": {
                 "_id": "$postcode",
@@ -271,7 +271,6 @@ async def internal_get_venues(city: str, zone: str, postcode: str):
             "city": city,
             "zone": zone,
             "postcode": postcode,
-            "includedinsurvey": True,
         },
         {
             "name": 1,
@@ -282,11 +281,13 @@ async def internal_get_venues(city: str, zone: str, postcode: str):
             "websiteuri": 1,
             "lastsurveyedat": 1,
             "survey_priorityscore": 1,
+            "location.formattedaddress": 1,
         },
     ).sort("survey_priorityscore", -1)
 
     items = []
     for d in cursor:
+        loc = d.get("location") or {}
         items.append(
             {
                 "id": str(d["_id"]),
@@ -296,6 +297,7 @@ async def internal_get_venues(city: str, zone: str, postcode: str):
                 "price_level": d.get("pricelevel"),
                 "google_maps_uri": d.get("googlemapsuri"),
                 "website_uri": d.get("websiteuri"),
+                "address": loc.get("formattedaddress"),
                 "last_surveyed_at": d.get("lastsurveyedat"),
                 "priority": d.get("survey_priorityscore"),
             }
@@ -306,7 +308,7 @@ async def internal_get_venues(city: str, zone: str, postcode: str):
 
 @app.get("/api/internal/stats/summary", response_class=JSONResponse)
 async def internal_get_summary(city: str | None = None):
-    match_stage = {"includedinsurvey": True}
+    match_stage = {}
     if city:
         match_stage["city"] = city
 
@@ -341,6 +343,129 @@ async def internal_get_summary(city: str | None = None):
     }
 
 
+@app.get("/api/internal/dashboard", response_class=JSONResponse)
+async def internal_dashboard(city: str | None = None):
+    match_stage = {}
+    if city:
+        match_stage["city"] = city
+
+    # Per city
+    city_pipeline = [
+        {"$match": match_stage},
+        {
+            "$group": {
+                "_id": "$city",
+                "total": {"$sum": 1},
+                "surveyed": {
+                    "$sum": {
+                        "$cond": [
+                            {"$ne": ["$lastsurveyedat", None]},
+                            1,
+                            0,
+                        ]
+                    }
+                },
+            }
+        },
+        {"$sort": {"_id": 1}},
+    ]
+    city_data = list(venues.aggregate(city_pipeline))
+    cities = []
+    for c in city_data:
+        total = c["total"]
+        surveyed = c["surveyed"]
+        coverage = (surveyed / total) * 100 if total else 0
+        cities.append(
+            {
+                "city": c["_id"],
+                "total": total,
+                "surveyed": surveyed,
+                "coverage": coverage,
+            }
+        )
+
+    # Zones + postcodes nested
+    zone_pipeline = [
+        {"$match": match_stage},
+        {
+            "$group": {
+                "_id": {
+                    "city": "$city",
+                    "zone": "$zone",
+                    "postcode": "$postcode",
+                },
+                "total": {"$sum": 1},
+                "surveyed": {
+                    "$sum": {
+                        "$cond": [
+                            {"$ne": ["$lastsurveyedat", None]},
+                            1,
+                            0,
+                        ]
+                    }
+                },
+            }
+        },
+        {"$sort": {"_id.city": 1, "_id.zone": 1, "_id.postcode": 1}},
+    ]
+
+    zone_data = list(venues.aggregate(zone_pipeline))
+
+    by_city = {}
+    for row in zone_data:
+        cid = row["_id"]["city"]
+        zid = row["_id"]["zone"]
+        pc = row["_id"]["postcode"]
+        total = row["total"]
+        surveyed = row["surveyed"]
+
+        city_obj = by_city.setdefault(
+            cid, {"zones": {}}
+        )
+        zone_obj = city_obj["zones"].setdefault(
+            zid, {"postcodes": {}}
+        )
+        zone_obj["postcodes"][pc] = {
+            "total": total,
+            "surveyed": surveyed,
+        }
+
+    for cid, cval in by_city.items():
+        zones = []
+        for zid, zval in cval["zones"].items():
+            pcs = zval["postcodes"]
+            total = sum(p["total"] for p in pcs.values())
+            surveyed = sum(p["surveyed"] for p in pcs.values())
+            coverage = (surveyed / total) * 100 if total else 0
+            zones.append(
+                {
+                    "zone": zid,
+                    "total": total,
+                    "surveyed": surveyed,
+                    "coverage": coverage,
+                    "postcode_count": len(pcs),
+                    "postcodes": [
+                        {
+                            "postcode": pc,
+                            "total": pcs[pc]["total"],
+                            "surveyed": pcs[pc]["surveyed"],
+                        }
+                        for pc in sorted(pcs.keys())
+                    ],
+                }
+            )
+        cval["zones_list"] = zones
+
+    return {
+        "cities": cities,
+        "zones_by_city": {
+            cid: cval["zones_list"] for cid, cval in by_city.items()
+        },
+    }
+
+
+# ---------- API 4: Field survey submission ----------
+
 @app.post("/api/internal/surveys", response_class=JSONResponse)
 async def internal_submit_venue_survey(
     restaurant_id: str = Form(...),
@@ -349,14 +474,15 @@ async def internal_submit_venue_survey(
     postcode: str = Form(...),
     visited_on: str = Form(...),
     surveyed_by: str = Form(...),
-    vibe_score: int = Form(...),
-    crowd_type: str = Form(...),
-    noise_level: str = Form(...),
-    lighting: str = Form(...),
+
+    acousticprofile: str = Form(...),
+    lightinglevel: str = Form(...),
+    seatinginventory: str = Form(...),
+    privatebooths: str = Form(""),
+
     two_table_fit: str = Form(...),
     notes: str = Form(""),
 ):
-    # Save survey
     doc = {
         "restaurant_id": ObjectId(restaurant_id),
         "city": city,
@@ -364,17 +490,16 @@ async def internal_submit_venue_survey(
         "postcode": postcode,
         "visit_date": visited_on,
         "surveyed_by": surveyed_by,
-        "vibe_score": int(vibe_score),
-        "crowd_type": crowd_type,
-        "noise_level": noise_level,
-        "lighting": lighting,
+        "acousticprofile": acousticprofile,
+        "lightinglevel": lightinglevel,
+        "seatinginventory": seatinginventory,
+        "privatebooths": privatebooths,
         "two_table_fit": two_table_fit,
         "notes": notes,
         "created_at": datetime.utcnow(),
     }
     result = venue_surveys.insert_one(doc)
 
-    # Mark venue as surveyed
     venues.update_one(
         {"_id": ObjectId(restaurant_id)},
         {"$set": {"lastsurveyedat": datetime.utcnow()}},

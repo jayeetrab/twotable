@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
 
-  <!-- You can reuse your font imports from index.html -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700&display=swap" rel="stylesheet">
@@ -59,18 +58,23 @@
       font-family: "League Spartan", system-ui, sans-serif;
       font-weight: 700;
       letter-spacing: -0.02em;
-      font-size: 1.6rem;
+      font-size: 2.4rem;
+      line-height: 0.95;
       display: inline-flex;
-      align-items: center;
-      gap: 0.1rem;
+      flex-direction: column;
+    }
+
+    .logo-mark span {
+      display: inline-block;
     }
 
     .logo-dot {
       display: inline-block;
-      width: 0.75em;
-      height: 0.75em;
+      width: 0.20em;
+      height: 0.20em;
       border-radius: 999px;
       background: var(--red);
+      margin-left: 0.08em;
     }
 
     .nav-right {
@@ -206,7 +210,7 @@
       border-radius: 14px;
       border: 1px solid rgba(0,0,0,0.05);
       background: #fdfbf9;
-      max-height: 360px;
+      max-height: 260px;
       overflow: auto;
     }
 
@@ -239,6 +243,9 @@
     .venue-meta {
       font-size: 0.75rem;
       color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .venue-status {
@@ -274,7 +281,7 @@
       font-size: 0.78rem;
     }
 
-    /* Survey form panel */
+    /* Survey form */
 
     .field {
       margin-bottom: 0.65rem;
@@ -346,15 +353,15 @@
       transition: background 150ms ease, transform 120ms ease, box-shadow 150ms ease;
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not([disabled]) {
       background: #8c080a;
       transform: translateY(-1px);
       box-shadow: 0 14px 26px rgba(0,0,0,0.16);
     }
 
     .btn-primary[disabled] {
-      opacity: 0.7;
-      cursor: progress;
+      opacity: 0.6;
+      cursor: default;
       box-shadow: none;
       transform: none;
     }
@@ -386,7 +393,8 @@
   <div class="page">
     <header class="nav">
       <div class="logo-mark">
-        Two<br>Table<span class="logo-dot"></span>
+        <span>Two</span>
+        <span>Table<span class="logo-dot"></span></span>
       </div>
       <div class="nav-right">
         <span class="nav-tag">Internal survey</span>
@@ -395,7 +403,7 @@
     </header>
 
     <main class="layout">
-      <!-- LEFT: Map of work (cities/zones/postcodes/venues + dashboard) -->
+      <!-- LEFT: map of work + dashboard -->
       <section class="panel">
         <div class="panel-header">
           <div>
@@ -404,9 +412,7 @@
           </div>
         </div>
 
-        <div class="stats-row" id="summary-row">
-          <!-- Filled by JS -->
-        </div>
+        <div class="stats-row" id="summary-row"></div>
 
         <div class="filters-row">
           <select id="city-select" class="select">
@@ -414,26 +420,25 @@
           </select>
         </div>
 
-        <div class="zones-grid" id="zones-grid">
-          <!-- Zones go here -->
-        </div>
-
-        <div class="postcodes-row" id="postcodes-row">
-          <!-- Postcodes go here -->
-        </div>
+        <div class="zones-grid" id="zones-grid"></div>
+        <div class="postcodes-row" id="postcodes-row"></div>
 
         <div id="venues-block">
           <div class="panel-sub" style="margin-bottom:0.3rem;">Venues in selection</div>
-          <div class="venues-list" id="venues-list">
-            <!-- Venue rows -->
-          </div>
-          <div class="muted" id="venues-empty" style="display:none; padding-top:0.4rem;">
+          <div class="venues-list" id="venues-list"></div>
+          <div class="muted" id="venues-empty" style="display:none; padding:0.4rem 0;">
             Select a zone and postcode to see venues.
           </div>
         </div>
+
+        <div style="margin-top:1.1rem;">
+          <div class="panel-sub" style="margin-bottom:0.3rem;">Dashboard summary</div>
+          <div class="muted" id="dashboard-help">Loading…</div>
+          <div id="dashboard-table" style="margin-top:0.4rem; font-size:0.78rem;"></div>
+        </div>
       </section>
 
-      <!-- RIGHT: Survey form for selected venue -->
+      <!-- RIGHT: survey form -->
       <section class="panel">
         <div class="panel-header">
           <div>
@@ -458,7 +463,6 @@
               <label for="visited_on">Visited on</label>
               <input type="date" name="visited_on" id="visited_on" required>
             </div>
-
             <div class="field">
               <label for="surveyed_by">Surveyed by</label>
               <input type="text" name="surveyed_by" id="surveyed_by" placeholder="Your name / initials" required>
@@ -467,58 +471,39 @@
 
           <div class="two-col">
             <div class="field">
-              <label for="vibe_score">Overall vibe (1–5)</label>
-              <select name="vibe_score" id="vibe_score" required>
-                <option value="">Select…</option>
-                <option value="1">1 – not for dates</option>
-                <option value="2">2 – weak</option>
-                <option value="3">3 – okay</option>
-                <option value="4">4 – good</option>
-                <option value="5">5 – ideal</option>
-              </select>
+              <label for="acousticprofile">Noise / acoustic profile</label>
+              <input id="acousticprofile" name="acousticprofile" placeholder="Low-key, buzzy, DJ weekends" required>
             </div>
-
             <div class="field">
-              <label for="two_table_fit">TwoTable fit</label>
-              <select name="two_table_fit" id="two_table_fit" required>
-                <option value="">Select…</option>
-                <option value="yes">Yes – strong fit</option>
-                <option value="maybe">Maybe – situational</option>
-                <option value="no">No – not a fit</option>
-              </select>
+              <label for="lightinglevel">Lighting</label>
+              <input id="lightinglevel" name="lightinglevel" placeholder="Candles, dim after 7pm, etc." required>
             </div>
           </div>
 
           <div class="two-col">
             <div class="field">
-              <label for="crowd_type">Typical crowd</label>
-              <input type="text" name="crowd_type" id="crowd_type" placeholder="Dates, groups, families, after-work, etc.">
+              <label for="seatinginventory">Seating for tables of two</label>
+              <input id="seatinginventory" name="seatinginventory" placeholder="Booths, bar seating, window tables" required>
             </div>
-
             <div class="field">
-              <label for="noise_level">Noise level</label>
-              <select name="noise_level" id="noise_level">
-                <option value="">Select…</option>
-                <option value="low">Low – easy to talk</option>
-                <option value="medium">Medium – buzzy</option>
-                <option value="high">High – loud</option>
-              </select>
+              <label for="privatebooths">Private nooks / booths</label>
+              <input id="privatebooths" name="privatebooths" placeholder="Where you’d prefer we seat date couples">
             </div>
           </div>
 
           <div class="field">
-            <label for="lighting">Lighting / ambience</label>
-            <select name="lighting" id="lighting">
+            <label for="two_table_fit">TwoTable fit (overall)</label>
+            <select name="two_table_fit" id="two_table_fit" required>
               <option value="">Select…</option>
-              <option value="dim">Dim / cosy</option>
-              <option value="mixed">Mixed</option>
-              <option value="bright">Bright</option>
+              <option value="yes">Yes – strong fit</option>
+              <option value="maybe">Maybe – with conditions</option>
+              <option value="no">No – not a fit</option>
             </select>
           </div>
 
           <div class="field">
             <label for="notes">Notes for this venue</label>
-            <textarea name="notes" id="notes" placeholder="Anything we should know about this space for dates, constraints, surprises, etc."></textarea>
+            <textarea id="notes" name="notes" placeholder="Anything we should know about this space for dates, constraints, surprises, etc."></textarea>
           </div>
 
           <button type="submit" class="btn-primary" id="submit-btn" disabled>Choose a venue to start</button>
@@ -548,12 +533,6 @@
       return res.json();
     }
 
-    function formatCoverage(surveyed, total) {
-      if (!total) return "0 / 0 • 0%";
-      const pct = Math.round((surveyed / total) * 100);
-      return `${surveyed} / ${total} • ${pct}%`;
-    }
-
     async function loadSummary(city) {
       const params = city ? `?city=${encodeURIComponent(city)}` : "";
       const data = await fetchJson(`/api/internal/stats/summary${params}`);
@@ -566,7 +545,7 @@
       row.appendChild(pill);
 
       const sub = document.getElementById("summary-sub");
-      sub.textContent = city ? `Coverage for ${city}.` : "Overall coverage across all survey venues.";
+      sub.textContent = city ? `Coverage for ${city}.` : "Overall coverage across all venues.";
     }
 
     async function loadCities() {
@@ -699,9 +678,11 @@
 
         const meta = document.createElement("div");
         meta.className = "venue-meta";
-        const ratingPart = v.rating ? `★ ${v.rating.toFixed ? v.rating.toFixed(1) : v.rating}` : "No rating";
-        const countPart = v.user_ratings_total ? `• ${v.user_ratings_total} reviews` : "";
-        meta.textContent = `${ratingPart} ${countPart}`.trim();
+        const parts = [];
+        if (v.rating) parts.push(`★ ${v.rating.toFixed ? v.rating.toFixed(1) : v.rating}`);
+        if (v.user_ratings_total) parts.push(`${v.user_ratings_total} reviews`);
+        if (v.address) parts.push(v.address);
+        meta.textContent = parts.join(" • ");
 
         main.appendChild(name);
         main.appendChild(meta);
@@ -812,8 +793,7 @@
       btn.disabled = true;
       btn.textContent = "Saving…";
 
-      try:
-      {
+      try {
         const form = document.getElementById("survey-form");
         const formData = new FormData(form);
         const res = await fetch("/api/internal/surveys", {
@@ -830,7 +810,8 @@
 
         showAlert("Survey saved for this venue.");
         await loadSummary(state.selectedCity);
-        await loadVenues();  // refresh list so status toggles to Done
+        await loadVenues();
+        await loadDashboard(state.selectedCity);
 
         btn.textContent = "Saved ✓";
         setTimeout(() => {
@@ -845,6 +826,57 @@
       }
     }
 
+    async function loadDashboard(city) {
+      const params = city ? `?city=${encodeURIComponent(city)}` : "";
+      const data = await fetchJson(`/api/internal/dashboard${params}`);
+      const container = document.getElementById("dashboard-table");
+      const help = document.getElementById("dashboard-help");
+      container.innerHTML = "";
+
+      if (!data.cities || data.cities.length === 0) {
+        help.textContent = "No venues found in the database.";
+        return;
+      }
+
+      help.textContent = city
+        ? `Dashboard for ${city}.`
+        : "Dashboard across all cities.";
+
+      data.cities.forEach((c) => {
+        const cityBlock = document.createElement("div");
+        cityBlock.style.marginBottom = "0.7rem";
+
+        const header = document.createElement("div");
+        header.style.fontWeight = "600";
+        header.textContent = `${c.city} – ${c.surveyed}/${c.total} (${Math.round(c.coverage)}%)`;
+        cityBlock.appendChild(header);
+
+        const zones = (data.zones_by_city && data.zones_by_city[c.city]) || [];
+        zones.forEach((z) => {
+          const zLine = document.createElement("div");
+          zLine.style.marginLeft = "0.4rem";
+          zLine.textContent = `• ${z.zone}: ${z.surveyed}/${z.total} (${Math.round(z.coverage)}%), ${z.postcode_count} postcodes`;
+          cityBlock.appendChild(zLine);
+
+          z.postcodes.forEach((p) => {
+            const pLine = document.createElement("div");
+            pLine.style.marginLeft = "1.0rem";
+            const remaining = p.total - p.surveyed;
+            pLine.textContent = `- ${p.postcode}: ${p.surveyed}/${p.total} (left: ${remaining})`;
+            cityBlock.appendChild(pLine);
+          });
+        });
+
+        container.appendChild(cityBlock);
+      });
+    }
+
+    async function refreshAll(city) {
+      await loadSummary(city);
+      await loadZones();
+      await loadDashboard(city);
+    }
+
     document.getElementById("city-select").addEventListener("change", async (e) => {
       state.selectedCity = e.target.value || null;
       state.selectedZone = null;
@@ -855,16 +887,15 @@
       document.getElementById("zones-grid").innerHTML = "";
       document.getElementById("postcodes-row").innerHTML = "";
       renderVenues([]);
-      await loadSummary(state.selectedCity);
-      if (state.selectedCity) {
-        await loadZones();
-      }
+      await refreshAll(state.selectedCity);
     });
 
     document.getElementById("survey-form").addEventListener("submit", handleSurveySubmit);
 
-    // Init
-    loadCities().catch((err) => console.error(err));
+    // init
+    loadCities()
+      .then(() => loadDashboard(null))
+      .catch((err) => console.error(err));
   </script>
 </body>
 </html>
