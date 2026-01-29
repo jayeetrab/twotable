@@ -265,9 +265,9 @@ async def internal_get_venues(city: str, zone: str, postcode: str):
     cursor = venues.find(
         {"city": city, "zone": zone, "postcode": postcode},
         {
-            "name": 1,
-            "rating": 1,
-            "userratingstotal": 1,
+            "core.name": 1,
+            "rating.value": 1,
+            "rating.count": 1,
             "pricelevel": 1,
             "googlemapsuri": 1,
             "websiteuri": 1,
@@ -279,13 +279,16 @@ async def internal_get_venues(city: str, zone: str, postcode: str):
 
     items = []
     for d in cursor:
+        core = d.get("core") or {}
+        rating = d.get("rating") or {}
         loc = d.get("location") or {}
+
         items.append(
             {
                 "id": str(d["_id"]),
-                "name": d.get("name"),
-                "rating": d.get("rating"),
-                "user_ratings_total": d.get("userratingstotal"),
+                "name": core.get("name"),
+                "rating": rating.get("value"),
+                "user_ratings_total": rating.get("count"),
                 "price_level": d.get("pricelevel"),
                 "google_maps_uri": d.get("googlemapsuri"),
                 "website_uri": d.get("websiteuri"),
@@ -296,6 +299,7 @@ async def internal_get_venues(city: str, zone: str, postcode: str):
         )
 
     return {"venues": items}
+
 
 
 @app.get("/api/internal/stats/summary", response_class=JSONResponse)
@@ -328,8 +332,11 @@ async def internal_get_summary(city: str | None = None):
 
     d = data[0]
     coverage = (d["surveyed"] / d["total"]) * 100 if d["total"] else 0.0
-    return {"total": d["total"], "surveyed": d["surveyed"], "coverage": coverage}
-
+    return {
+        "total": d["total"],
+        "surveyed": d["surveyed"],
+        "coverage": coverage,
+    }
 
 @app.get("/api/internal/dashboard", response_class=JSONResponse)
 async def internal_dashboard(city: str | None = None):
