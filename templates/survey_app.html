@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TwoTable – Internal Venue Survey</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- You can reuse your font imports from index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f3f1ee;
+      --text: #161616;
+      --red: #B80B0B;
+      --muted: #6b655d;
+      --card: #ffffff;
+      --border-subtle: rgba(0,0,0,0.06);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #ffffff 0, #f3f1ee 46%, #e8e2d9 100%);
+      color: var(--text);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-mark {
+      font-family: "League Spartan", system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-size: 1.6rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.1rem;
+    }
+
+    .logo-dot {
+      display: inline-block;
+      width: 0.75em;
+      height: 0.75em;
+      border-radius: 999px;
+      background: var(--red);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .nav-tag {
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: rgba(255,255,255,0.9);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--red);
+    }
+
+    .layout {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 960px) {
+      .layout {
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        align-items: flex-start;
+      }
+    }
+
+    .panel {
+      border-radius: 20px;
+      background: var(--card);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.07);
+      padding: 1.3rem 1.3rem 1.1rem;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .panel-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .stat-pill {
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      background: #f7f3ee;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .stat-pill strong {
+      font-weight: 600;
+    }
+
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .select {
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: #fdfbf9;
+      font-size: 0.85rem;
+      min-width: 160px;
+    }
+
+    .zones-grid, .postcodes-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .zone-pill, .postcode-pill {
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: #f9f5ef;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .zone-pill span.small, .postcode-pill span.small {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .pill-active {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    .pill-active span.small {
+      color: rgba(255,255,255,0.85);
+    }
+
+    .venues-list {
+      margin-top: 0.5rem;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,0.05);
+      background: #fdfbf9;
+      max-height: 360px;
+      overflow: auto;
+    }
+
+    .venue-row {
+      padding: 0.55rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+
+    .venue-row:last-child {
+      border-bottom: none;
+    }
+
+    .venue-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .venue-name {
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .venue-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .venue-status {
+      font-size: 0.73rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #ffffff;
+      white-space: nowrap;
+    }
+
+    .venue-status.done {
+      background: rgba(20,140,60,0.08);
+      border-color: rgba(20,140,60,0.40);
+      color: #15753c;
+    }
+
+    .venue-status.pending {
+      background: rgba(184,11,11,0.05);
+      border-color: rgba(184,11,11,0.3);
+      color: var(--red);
+    }
+
+    .venue-open-link {
+      font-size: 0.73rem;
+      color: var(--muted);
+      text-decoration: underline;
+      white-space: nowrap;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    /* Survey form panel */
+
+    .field {
+      margin-bottom: 0.65rem;
+      font-size: 0.84rem;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 0.2rem;
+      font-weight: 600;
+      color: #3b362f;
+      font-size: 0.78rem;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: #fdfbf9;
+      font-size: 0.86rem;
+      font-family: inherit;
+      color: var(--text);
+      transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--red);
+      box-shadow: 0 0 0 1px rgba(184,11,11,0.20), 0 6px 18px rgba(0,0,0,0.06);
+      background-color: #ffffff;
+    }
+
+    .field textarea {
+      min-height: 80px;
+      resize: vertical;
+      line-height: 1.35;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem 0.75rem;
+    }
+
+    @media (max-width: 640px) {
+      .two-col {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: var(--red);
+      color: #fff;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+      transition: background 150ms ease, transform 120ms ease, box-shadow 150ms ease;
+    }
+
+    .btn-primary:hover {
+      background: #8c080a;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(0,0,0,0.16);
+    }
+
+    .btn-primary[disabled] {
+      opacity: 0.7;
+      cursor: progress;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .helper-text {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    .alert {
+      margin-bottom: 0.6rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      background: rgba(20,140,60,0.06);
+      border: 1px solid rgba(20,140,60,0.35);
+      color: #15753c;
+    }
+
+    .alert-error {
+      background: rgba(184,11,11,0.06);
+      border-color: rgba(184,11,11,0.4);
+      color: var(--red);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="nav">
+      <div class="logo-mark">
+        Two<br>Table<span class="logo-dot"></span>
+      </div>
+      <div class="nav-right">
+        <span class="nav-tag">Internal survey</span>
+        <span>City → Zone → Postcode → Venue → Survey</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- LEFT: Map of work (cities/zones/postcodes/venues + dashboard) -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Field survey dashboard</div>
+            <div class="panel-sub" id="summary-sub">Pick a city to see coverage.</div>
+          </div>
+        </div>
+
+        <div class="stats-row" id="summary-row">
+          <!-- Filled by JS -->
+        </div>
+
+        <div class="filters-row">
+          <select id="city-select" class="select">
+            <option value="">Select city…</option>
+          </select>
+        </div>
+
+        <div class="zones-grid" id="zones-grid">
+          <!-- Zones go here -->
+        </div>
+
+        <div class="postcodes-row" id="postcodes-row">
+          <!-- Postcodes go here -->
+        </div>
+
+        <div id="venues-block">
+          <div class="panel-sub" style="margin-bottom:0.3rem;">Venues in selection</div>
+          <div class="venues-list" id="venues-list">
+            <!-- Venue rows -->
+          </div>
+          <div class="muted" id="venues-empty" style="display:none; padding-top:0.4rem;">
+            Select a zone and postcode to see venues.
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Survey form for selected venue -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" id="venue-title">Select a venue to start a survey</div>
+            <div class="panel-sub" id="venue-sub">
+              Choose a city, zone, and postcode on the left, then pick a venue.
+            </div>
+          </div>
+        </div>
+
+        <div id="survey-alert" class="alert" style="display:none;"></div>
+        <div id="survey-alert-error" class="alert alert-error" style="display:none;"></div>
+
+        <form id="survey-form">
+          <input type="hidden" name="restaurant_id" id="restaurant_id">
+          <input type="hidden" name="city" id="city_field">
+          <input type="hidden" name="zone" id="zone_field">
+          <input type="hidden" name="postcode" id="postcode_field">
+
+          <div class="two-col">
+            <div class="field">
+              <label for="visited_on">Visited on</label>
+              <input type="date" name="visited_on" id="visited_on" required>
+            </div>
+
+            <div class="field">
+              <label for="surveyed_by">Surveyed by</label>
+              <input type="text" name="surveyed_by" id="surveyed_by" placeholder="Your name / initials" required>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="field">
+              <label for="vibe_score">Overall vibe (1–5)</label>
+              <select name="vibe_score" id="vibe_score" required>
+                <option value="">Select…</option>
+                <option value="1">1 – not for dates</option>
+                <option value="2">2 – weak</option>
+                <option value="3">3 – okay</option>
+                <option value="4">4 – good</option>
+                <option value="5">5 – ideal</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="two_table_fit">TwoTable fit</label>
+              <select name="two_table_fit" id="two_table_fit" required>
+                <option value="">Select…</option>
+                <option value="yes">Yes – strong fit</option>
+                <option value="maybe">Maybe – situational</option>
+                <option value="no">No – not a fit</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="field">
+              <label for="crowd_type">Typical crowd</label>
+              <input type="text" name="crowd_type" id="crowd_type" placeholder="Dates, groups, families, after-work, etc.">
+            </div>
+
+            <div class="field">
+              <label for="noise_level">Noise level</label>
+              <select name="noise_level" id="noise_level">
+                <option value="">Select…</option>
+                <option value="low">Low – easy to talk</option>
+                <option value="medium">Medium – buzzy</option>
+                <option value="high">High – loud</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="lighting">Lighting / ambience</label>
+            <select name="lighting" id="lighting">
+              <option value="">Select…</option>
+              <option value="dim">Dim / cosy</option>
+              <option value="mixed">Mixed</option>
+              <option value="bright">Bright</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="notes">Notes for this venue</label>
+            <textarea name="notes" id="notes" placeholder="Anything we should know about this space for dates, constraints, surprises, etc."></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary" id="submit-btn" disabled>Choose a venue to start</button>
+          <div class="helper-text">
+            Saved surveys will update the coverage stats on the left automatically.
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      cities: [],
+      selectedCity: null,
+      zones: [],
+      selectedZone: null,
+      postcodes: [],
+      selectedPostcode: null,
+      venues: [],
+      selectedVenue: null,
+    };
+
+    async function fetchJson(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Request failed: " + res.status);
+      return res.json();
+    }
+
+    function formatCoverage(surveyed, total) {
+      if (!total) return "0 / 0 • 0%";
+      const pct = Math.round((surveyed / total) * 100);
+      return `${surveyed} / ${total} • ${pct}%`;
+    }
+
+    async function loadSummary(city) {
+      const params = city ? `?city=${encodeURIComponent(city)}` : "";
+      const data = await fetchJson(`/api/internal/stats/summary${params}`);
+      const row = document.getElementById("summary-row");
+      row.innerHTML = "";
+
+      const pill = document.createElement("div");
+      pill.className = "stat-pill";
+      pill.innerHTML = `<strong>${data.surveyed}</strong> surveyed of <strong>${data.total}</strong> venues (${Math.round(data.coverage)}%)`;
+      row.appendChild(pill);
+
+      const sub = document.getElementById("summary-sub");
+      sub.textContent = city ? `Coverage for ${city}.` : "Overall coverage across all survey venues.";
+    }
+
+    async function loadCities() {
+      const data = await fetchJson("/api/internal/cities");
+      state.cities = data.cities || [];
+      const select = document.getElementById("city-select");
+      select.innerHTML = '<option value="">Select city…</option>';
+      state.cities.forEach((c) => {
+        const opt = document.createElement("option");
+        opt.value = c.city;
+        opt.textContent = `${c.city} (${c.restaurant_count})`;
+        select.appendChild(opt);
+      });
+      await loadSummary(null);
+    }
+
+    async function loadZones() {
+      if (!state.selectedCity) return;
+      const data = await fetchJson(`/api/internal/zones?city=${encodeURIComponent(state.selectedCity)}`);
+      state.zones = data.zones || [];
+      const container = document.getElementById("zones-grid");
+      container.innerHTML = "";
+      state.selectedZone = null;
+      state.postcodes = [];
+      state.selectedPostcode = null;
+      renderPostcodes([]);
+      renderVenues([]);
+
+      state.zones.forEach((z) => {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "zone-pill";
+        el.dataset.zone = z.zone;
+        const remaining = z.restaurant_count - z.surveyed_count;
+        el.innerHTML = `
+          <span>${z.zone}</span>
+          <span class="small">${z.surveyed_count}/${z.restaurant_count} • ${remaining} left</span>
+        `;
+        el.addEventListener("click", () => {
+          state.selectedZone = z.zone;
+          highlightSelectedZone();
+          loadPostcodes();
+        });
+        container.appendChild(el);
+      });
+    }
+
+    function highlightSelectedZone() {
+      document.querySelectorAll(".zone-pill").forEach((el) => {
+        if (el.dataset.zone === state.selectedZone) {
+          el.classList.add("pill-active");
+        } else {
+          el.classList.remove("pill-active");
+        }
+      });
+    }
+
+    async function loadPostcodes() {
+      if (!state.selectedCity || !state.selectedZone) return;
+      const data = await fetchJson(
+        `/api/internal/postcodes?city=${encodeURIComponent(state.selectedCity)}&zone=${encodeURIComponent(state.selectedZone)}`
+      );
+      state.postcodes = data.postcodes || [];
+      renderPostcodes(state.postcodes);
+      state.selectedPostcode = null;
+      renderVenues([]);
+    }
+
+    function renderPostcodes(list) {
+      const container = document.getElementById("postcodes-row");
+      container.innerHTML = "";
+      list.forEach((p) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "postcode-pill";
+        btn.dataset.postcode = p.postcode;
+        const remaining = p.restaurant_count - p.surveyed_count;
+        btn.innerHTML = `
+          <span>${p.postcode}</span>
+          <span class="small">${p.surveyed_count}/${p.restaurant_count} • ${remaining} left</span>
+        `;
+        btn.addEventListener("click", () => {
+          state.selectedPostcode = p.postcode;
+          highlightSelectedPostcode();
+          loadVenues();
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    function highlightSelectedPostcode() {
+      document.querySelectorAll(".postcode-pill").forEach((el) => {
+        if (el.dataset.postcode === state.selectedPostcode) {
+          el.classList.add("pill-active");
+        } else {
+          el.classList.remove("pill-active");
+        }
+      });
+    }
+
+    async function loadVenues() {
+      if (!state.selectedCity || !state.selectedZone || !state.selectedPostcode) return;
+      const url = `/api/internal/venues?city=${encodeURIComponent(state.selectedCity)}&zone=${encodeURIComponent(state.selectedZone)}&postcode=${encodeURIComponent(state.selectedPostcode)}`;
+      const data = await fetchJson(url);
+      state.venues = data.venues || [];
+      renderVenues(state.venues);
+    }
+
+    function renderVenues(list) {
+      const container = document.getElementById("venues-list");
+      const empty = document.getElementById("venues-empty");
+      container.innerHTML = "";
+      if (!list || list.length === 0) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      list.forEach((v) => {
+        const row = document.createElement("div");
+        row.className = "venue-row";
+        row.dataset.id = v.id;
+
+        const main = document.createElement("div");
+        main.className = "venue-main";
+
+        const name = document.createElement("div");
+        name.className = "venue-name";
+        name.textContent = v.name || "Unnamed venue";
+
+        const meta = document.createElement("div");
+        meta.className = "venue-meta";
+        const ratingPart = v.rating ? `★ ${v.rating.toFixed ? v.rating.toFixed(1) : v.rating}` : "No rating";
+        const countPart = v.user_ratings_total ? `• ${v.user_ratings_total} reviews` : "";
+        meta.textContent = `${ratingPart} ${countPart}`.trim();
+
+        main.appendChild(name);
+        main.appendChild(meta);
+
+        const status = document.createElement("div");
+        status.className = "venue-status";
+        if (v.last_surveyed_at) {
+          status.textContent = "Done";
+          status.classList.add("done");
+        } else {
+          status.textContent = "Pending";
+          status.classList.add("pending");
+        }
+
+        const links = document.createElement("div");
+        links.style.display = "flex";
+        links.style.flexDirection = "column";
+        links.style.alignItems = "flex-end";
+        links.style.gap = "0.2rem";
+
+        if (v.google_maps_uri) {
+          const a = document.createElement("a");
+          a.href = v.google_maps_uri;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.className = "venue-open-link";
+          a.textContent = "Maps";
+          links.appendChild(a);
+        }
+
+        if (v.website_uri) {
+          const a2 = document.createElement("a");
+          a2.href = v.website_uri;
+          a2.target = "_blank";
+          a2.rel = "noopener noreferrer";
+          a2.className = "venue-open-link";
+          a2.textContent = "Site";
+          links.appendChild(a2);
+        }
+
+        row.appendChild(main);
+        row.appendChild(status);
+        row.appendChild(links);
+
+        row.addEventListener("click", () => {
+          state.selectedVenue = v;
+          fillSurveyForVenue(v);
+        });
+
+        container.appendChild(row);
+      });
+    }
+
+    function fillSurveyForVenue(v) {
+      const title = document.getElementById("venue-title");
+      const sub = document.getElementById("venue-sub");
+      title.textContent = v.name || "Selected venue";
+      const city = state.selectedCity || "";
+      const zone = state.selectedZone || "";
+      const pc = state.selectedPostcode || "";
+      sub.textContent = `${city} • ${zone} • ${pc}`;
+
+      document.getElementById("restaurant_id").value = v.id;
+      document.getElementById("city_field").value = city;
+      document.getElementById("zone_field").value = zone;
+      document.getElementById("postcode_field").value = pc;
+
+      const today = new Date().toISOString().slice(0, 10);
+      if (!document.getElementById("visited_on").value) {
+        document.getElementById("visited_on").value = today;
+      }
+
+      document.getElementById("submit-btn").disabled = false;
+      hideAlert();
+    }
+
+    function showAlert(msg) {
+      const el = document.getElementById("survey-alert");
+      el.textContent = msg;
+      el.style.display = "block";
+      const err = document.getElementById("survey-alert-error");
+      err.style.display = "none";
+    }
+
+    function showError(msg) {
+      const el = document.getElementById("survey-alert-error");
+      el.textContent = msg;
+      el.style.display = "block";
+      const ok = document.getElementById("survey-alert");
+      ok.style.display = "none";
+    }
+
+    function hideAlert() {
+      document.getElementById("survey-alert").style.display = "none";
+      document.getElementById("survey-alert-error").style.display = "none";
+    }
+
+    async function handleSurveySubmit(e) {
+      e.preventDefault();
+      hideAlert();
+
+      const btn = document.getElementById("submit-btn");
+      if (!state.selectedVenue) {
+        showError("Please select a venue first.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+
+      try:
+      {
+        const form = document.getElementById("survey-form");
+        const formData = new FormData(form);
+        const res = await fetch("/api/internal/surveys", {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) {
+          throw new Error("Failed to save survey");
+        }
+        const data = await res.json();
+        if (!data.ok) {
+          throw new Error("Survey save error");
+        }
+
+        showAlert("Survey saved for this venue.");
+        await loadSummary(state.selectedCity);
+        await loadVenues();  // refresh list so status toggles to Done
+
+        btn.textContent = "Saved ✓";
+        setTimeout(() => {
+          btn.textContent = "Save survey";
+        }, 1200);
+      } catch (err) {
+        console.error(err);
+        showError("Could not save survey. Please try again.");
+        btn.textContent = "Save survey";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById("city-select").addEventListener("change", async (e) => {
+      state.selectedCity = e.target.value || null;
+      state.selectedZone = null;
+      state.selectedPostcode = null;
+      state.zones = [];
+      state.postcodes = [];
+      state.venues = [];
+      document.getElementById("zones-grid").innerHTML = "";
+      document.getElementById("postcodes-row").innerHTML = "";
+      renderVenues([]);
+      await loadSummary(state.selectedCity);
+      if (state.selectedCity) {
+        await loadZones();
+      }
+    });
+
+    document.getElementById("survey-form").addEventListener("submit", handleSurveySubmit);
+
+    // Init
+    loadCities().catch((err) => console.error(err));
+  </script>
+</body>
+</html>

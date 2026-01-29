@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TwoTable · Partner Invitation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --text: #161616;
+      --red: #B80B0B;
+      --grey: #dedad2;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+    }
+    a { text-decoration: none; }
+    .wrapper {
+      width: 100%;
+      background-color: var(--bg);
+      padding: 12px 0;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(222,218,210,0.9);
+    }
+    .header {
+      background-color: #ffffff;
+      border-bottom: 1px solid rgba(222,218,210,0.9);
+      padding: 16px 20px 10px 20px;
+    }
+    .logo-mark {
+      font-family: "League Spartan", system-ui, -apple-system, sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 0.95;
+      font-size: 24px;
+    }
+    .logo-dot {
+      display: inline-block;
+      width: 0.23em;
+      height: 0.23em;
+      border-radius: 999px;
+      background: var(--red);
+      margin-left: 0.04em;
+      vertical-align: baseline;
+    }
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-top: 8px;
+    }
+    .hero-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 8px;
+      line-height: 1.2;
+    }
+    .hero-sub {
+      font-size: 13px;
+      color: #5f5a52;
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+    .content {
+      padding: 16px 20px 20px 20px;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    h2 {
+      font-size: 16px;
+      margin: 16px 0 8px 0;
+      letter-spacing: -0.03em;
+    }
+    p { margin: 6px 0; }
+    ul {
+      margin: 6px 0 10px 20px;
+      padding: 0;
+    }
+    li { margin-bottom: 4px; }
+    .btn-row {
+      margin: 16px 0 10px 0;
+    }
+    .btn-primary, .btn-secondary {
+      display: inline-block;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      margin-right: 6px;
+    }
+    .btn-primary {
+      background-color: var(--red);
+      color: #ffffff !important;
+      border: 1px solid var(--red);
+    }
+    .btn-secondary {
+      background-color: #ffffff;
+      color: var(--red) !important;
+      border: 1px solid var(--red);
+    }
+    .highlight-box {
+      border-radius: 12px;
+      background-color: #fdf9f4;
+      border: 1px solid rgba(222,218,210,0.9);
+      padding: 10px 12px;
+      font-size: 13px;
+      margin: 12px 0;
+    }
+    .small {
+      font-size: 12px;
+      color: #7a746c;
+    }
+    .footer {
+      font-size: 11px;
+      color: #7a746c;
+      padding: 14px 18px 16px 18px;
+      text-align: center;
+      background-color: #faf7f2;
+    }
+
+    /* Mobile overrides */
+    @media (max-width: 600px) {
+      .wrapper {
+        padding: 0;
+      }
+      .container {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+      .header, .content {
+        padding: 14px 14px 14px 14px;
+      }
+      .logo-mark {
+        font-size: 22px;
+      }
+      .hero-title {
+        font-size: 17px;
+      }
+      h2 {
+        font-size: 15px;
+      }
+      .btn-primary, .btn-secondary {
+        display: block;
+        width: 100%;
+        margin: 0 0 8px 0;
+      }
+      .btn-row {
+        margin-top: 12px;
+      }
+      ul {
+        margin-left: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+
+      <!-- HEADER / BRAND -->
+      <div class="header">
+        <div class="logo-mark">
+          Two<br/>Table<span class="logo-dot"></span>
+        </div>
+        <div class="badge">FOR RESTAURANTS &amp; BARS</div>
+        <div class="hero-title">
+          Turn quiet evenings into fully booked tables for two.
+        </div>
+        <div class="hero-sub">
+          TwoTable is a dating app that matches compatible people and books them directly into partner venues like yours, focusing on your off‑peak hours.
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="content">
+        <p>Hi {{name}} / {{restaurant}} team,</p>
+
+        <p>
+          I’m reaching out from <strong>TwoTable</strong>, a UK‑based dating app and restaurant platform.
+          We match people who are ready to meet in person and <strong>turn their matches into real‑life dates at partner venues</strong> in Bristol and London.
+        </p>
+
+        <p>
+          Your venue looks like a great fit for our users, and we’d love to invite you to join our next group of partner restaurants and bars.
+        </p>
+
+        <h2>How TwoTable works for your venue</h2>
+
+        <p><strong>On the customer side (dating app):</strong></p>
+        <ul>
+          <li>Users match with compatible people inside the TwoTable app.</li>
+          <li>When they’re ready to meet, TwoTable suggests venues that match their preferences (location, budget, vibe, cuisine).</li>
+          <li>We then book a table at a partner venue – you – for their date.</li>
+        </ul>
+
+        <p><strong>On your side (partner venue):</strong></p>
+        <ul>
+          <li><strong>Curated date‑night bookings</strong> – couples and small groups who are expecting to spend on a good experience.</li>
+          <li><strong>Off‑peak focus</strong> – we steer bookings into quieter slots, so we aren’t competing with your peak‑time covers.</li>
+          <li><strong>No‑show &amp; cancellation protection</strong> – deposits and reminders mean fewer no‑shows, and you’re compensated when they do happen.</li>
+          <li><strong>Time‑slot control</strong> – you decide which days and hours you want to open to TwoTable.</li>
+          <li><strong>Brand‑safe</strong> – no requirement to run heavy public discounts or “voucher” deals.</li>
+        </ul>
+
+        <h2>Works with the tools you already use</h2>
+        <ul>
+          <li><strong>Reservations platforms</strong> – we are partnered with systems like <strong>SevenRooms</strong> and <strong>OpenTable</strong>. If you’re already using tablets or a host‑screen, we can arrange a simple flow that fits into your current setup.</li>
+          <li><strong>Tablets where needed</strong> – if you don’t currently have a dedicated device at the host stand, we can arrange a simple tablet setup so your team can see upcoming TwoTable dates at a glance.</li>
+          <li><strong>Stripe &amp; escrow payouts</strong> – we use <strong>Stripe</strong> and an escrow model so your payouts are clear and reliable, with options for <strong>instant payment, weekly, or month‑end settlement</strong> depending on what suits your business.</li>
+          <li><strong>No training required</strong> – your team simply checks in TwoTable guests by name or reference; everything else (payments, deposits, fairness scoring, payouts) runs in the background.</li>
+        </ul>
+
+        <h2>Financial model: see what empty tables are costing you</h2>
+
+        <p>
+          We’ve built a dedicated financial model so you can see how much revenue is lost simply because tables sit empty during off‑peak times.
+          The model takes into account:
+        </p>
+        <ul>
+          <li>Staff and labour costs</li>
+          <li>Rent and fixed overheads</li>
+          <li>Average spend per cover / per table</li>
+          <li>Capacity and realistic table turns</li>
+          <li>Your typical off‑peak occupancy profile</li>
+        </ul>
+
+        <div class="highlight-box">
+          Using this, you can estimate:
+          <ul style="margin-top:4px;">
+            <li><strong>Loss per empty table per day</strong></li>
+            <li><strong>Total loss per month and per year</strong></li>
+            <li>How much of that loss you could <strong>recover</strong> if we fill a share of those off‑peak tables with TwoTable dates</li>
+          </ul>
+        </div>
+
+        <p>
+          You’ll also be able to plug in your own numbers so the model reflects your true costs and pricing, not just generic industry averages.
+        </p>
+
+        <h2>See your numbers &amp; explore scenarios</h2>
+
+        <p>
+          We’ve built a simple tool where you can answer:
+        </p>
+        <ul>
+          <li>“How much am I losing each year to empty tables?”</li>
+          <li>“What if I filled 20%, 40%, or 60% of those off‑peak seats?”</li>
+          <li>“What does that mean in extra annual revenue?”</li>
+        </ul>
+
+        <div class="btn-row">
+          <a href="https://file-organizer-lite.replit.app/" class="btn-primary" target="_blank">
+            Calculate how much you’re losing
+          </a>
+          <a href="https://twotable.co.uk/venues" class="btn-secondary" target="_blank">
+            Book a consolidation call
+          </a>
+        </div>
+
+        <p class="small">
+          All commercial terms between your venue and TwoTable are private. We never show customers how much we charge or any internal financial details.
+        </p>
+
+        <h2>What you can expect as a partner</h2>
+        <ul>
+          <li>New date‑night bookings on quieter evenings.</li>
+          <li>Deposit‑backed bookings that reduce no‑shows and protect your revenue.</li>
+          <li>Clear reporting on how many extra covers and how much extra revenue TwoTable is generating.</li>
+          <li>A system that’s very easy to adapt – your team can use it from day one with no formal training.</li>
+        </ul>
+
+        <h2>Register your venue with TwoTable</h2>
+
+        <p>
+          To receive your tailored financial view and configure your preferred time slots, please complete our short onboarding form:
+        </p>
+
+        <div class="btn-row">
+          <a href="https://twotable.co.uk/venues" class="btn-primary" target="_blank">
+            Register your venue on TwoTable
+          </a>
+        </div>
+
+        <p>
+          Once we have your details, we can share your off‑peak analysis, agree comfortable booking limits per night,
+          and start sending you well‑matched TwoTable dates.
+        </p>
+
+        <p>
+          If you’d like to talk first, just reply to this email and I’ll be happy to walk you through everything and show how TwoTable can work for <strong>{{restaurant}}</strong>.
+        </p>
+
+        <p>
+          Best regards,<br/>
+          [Your Name]<br/>
+          TwoTable Partnerships<br/>
+          <a href="mailto:twotable.uk@gmail.com" style="color:var(--red);">twotable.uk@gmail.com</a><br/>
+          <a href="https://twotable.co.uk" style="color:var(--red);" target="_blank">twotable.co.uk</a>
+        </p>
+      </div>
+
+      <div class="footer">
+        You’re receiving this email because your venue was identified as a potential partner for TwoTable in Bristol &amp; London.
+        If this isn’t relevant for you, simply reply and let us know.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
