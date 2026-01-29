@@ -10,24 +10,23 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGO_URI = os.getenv("MONGOURI", "mongodb://localhost:27017")
+MONGOURI = os.getenv("MONGOURI", "mongodb://localhost:27017")
 
-client = MongoClient(MONGO_URI)
+client = MongoClient(MONGOURI)
 
 # Main product DB
-db = client["TwoTable"]  # as in Compass
+db = client["TwoTable"]
 
-# Existing collections
+# Collections in main DB (match Compass)
 datingsurvey = db["dating_survey_submissions"]
 venueapplications = db["venue_applications"]
-venues = db["venues"]  # 1.4k restaurants, has city / postcode / zone
+venues = db["venues"]
 
-# Separate DB just for field surveys
+# Separate DB just for internal venue surveys
 survey_db = client["TwoTable_surveys"]
 venue_surveys = survey_db["venue_surveys"]
 
 app = FastAPI()
-
 templates = Jinja2Templates(directory="templates")
 
 TITLE = "TwoTable"
@@ -47,11 +46,10 @@ async def get_venues(request: Request):
 
 @app.get("/internal/surveys", response_class=HTMLResponse)
 async def get_internal_surveys(request: Request):
-    # Hidden internal survey app UI
     return templates.TemplateResponse("survey_app.html", {"request": request})
 
 
-# ---------- API 1: Dater survey (unchanged semantics) ----------
+# ---------- API 1: Dater survey ----------
 
 @app.post("/api/dater-survey")
 async def submit_dater_survey(
@@ -90,12 +88,11 @@ async def submit_dater_survey(
         "source": source,
         "created_at": datetime.utcnow(),
     }
-    result = datingsurvey.insert_one(doc)
-    print("Inserted dater survey:", result.inserted_id)
+    datingsurvey.insert_one(doc)
     return RedirectResponse(url="/?submitted=1", status_code=303)
 
 
-# ---------- API 2: Partner venue application (unchanged semantics) ----------
+# ---------- API 2: Partner venue application (unchanged) ----------
 
 @app.post("/api/venue-application")
 async def submit_venue_application(
@@ -176,12 +173,11 @@ async def submit_venue_application(
         "tippingculture": tippingculture,
         "created_at": datetime.utcnow(),
     }
-    result = venueapplications.insert_one(doc)
-    print("Inserted venue application:", result.inserted_id)
+    venueapplications.insert_one(doc)
     return RedirectResponse(url="/venues?submitted=1", status_code=303)
 
 
-# ---------- API 3: Internal survey app (JSON for UI) ----------
+# ---------- API 3: Internal survey – data for dashboard ----------
 
 @app.get("/api/internal/cities", response_class=JSONResponse)
 async def internal_get_cities():
@@ -193,7 +189,7 @@ async def internal_get_cities():
     cities = [
         {"city": d["_id"], "restaurant_count": d["restaurant_count"]}
         for d in data
-        if d["_id"] is not None
+        if d["_id"]
     ]
     return {"cities": cities}
 
@@ -267,11 +263,7 @@ async def internal_get_postcodes(city: str, zone: str):
 @app.get("/api/internal/venues", response_class=JSONResponse)
 async def internal_get_venues(city: str, zone: str, postcode: str):
     cursor = venues.find(
-        {
-            "city": city,
-            "zone": zone,
-            "postcode": postcode,
-        },
+        {"city": city, "zone": zone, "postcode": postcode},
         {
             "name": 1,
             "rating": 1,
@@ -336,11 +328,7 @@ async def internal_get_summary(city: str | None = None):
 
     d = data[0]
     coverage = (d["surveyed"] / d["total"]) * 100 if d["total"] else 0.0
-    return {
-        "total": d["total"],
-        "surveyed": d["surveyed"],
-        "coverage": coverage,
-    }
+    return {"total": d["total"], "surveyed": d["surveyed"], "coverage": coverage}
 
 
 @app.get("/api/internal/dashboard", response_class=JSONResponse)
@@ -349,7 +337,6 @@ async def internal_dashboard(city: str | None = None):
     if city:
         match_stage["city"] = city
 
-    # Per city
     city_pipeline = [
         {"$match": match_stage},
         {
@@ -384,7 +371,6 @@ async def internal_dashboard(city: str | None = None):
             }
         )
 
-    # Zones + postcodes nested
     zone_pipeline = [
         {"$match": match_stage},
         {
@@ -408,7 +394,6 @@ async def internal_dashboard(city: str | None = None):
         },
         {"$sort": {"_id.city": 1, "_id.zone": 1, "_id.postcode": 1}},
     ]
-
     zone_data = list(venues.aggregate(zone_pipeline))
 
     by_city = {}
@@ -419,16 +404,9 @@ async def internal_dashboard(city: str | None = None):
         total = row["total"]
         surveyed = row["surveyed"]
 
-        city_obj = by_city.setdefault(
-            cid, {"zones": {}}
-        )
-        zone_obj = city_obj["zones"].setdefault(
-            zid, {"postcodes": {}}
-        )
-        zone_obj["postcodes"][pc] = {
-            "total": total,
-            "surveyed": surveyed,
-        }
+        city_obj = by_city.setdefault(cid, {"zones": {}})
+        zone_obj = city_obj["zones"].setdefault(zid, {"postcodes": {}})
+        zone_obj["postcodes"][pc] = {"total": total, "surveyed": surveyed}
 
     for cid, cval in by_city.items():
         zones = []
@@ -458,13 +436,11 @@ async def internal_dashboard(city: str | None = None):
 
     return {
         "cities": cities,
-        "zones_by_city": {
-            cid: cval["zones_list"] for cid, cval in by_city.items()
-        },
+        "zones_by_city": {cid: cval["zones_list"] for cid, cval in by_city.items()},
     }
 
 
-# ---------- API 4: Field survey submission ----------
+# ---------- API 4: Internal venue survey (same fields as venues.html) ----------
 
 @app.post("/api/internal/surveys", response_class=JSONResponse)
 async def internal_submit_venue_survey(
@@ -472,15 +448,23 @@ async def internal_submit_venue_survey(
     city: str = Form(...),
     zone: str = Form(...),
     postcode: str = Form(...),
+
+    # basic visit info
     visited_on: str = Form(...),
     surveyed_by: str = Form(...),
 
+    # reusing key fields from partner form
     acousticprofile: str = Form(...),
-    lightinglevel: str = Form(...),
     seatinginventory: str = Form(...),
     privatebooths: str = Form(""),
+    lightinglevel: str = Form(...),
 
-    two_table_fit: str = Form(...),
+    angelaalertdestination: str = Form(""),
+    exitinfrastructure: str = Form(""),
+
+    payoutpreference: str = Form(""),
+    tippingculture: str = Form(""),
+
     notes: str = Form(""),
 ):
     doc = {
@@ -491,18 +475,21 @@ async def internal_submit_venue_survey(
         "visit_date": visited_on,
         "surveyed_by": surveyed_by,
         "acousticprofile": acousticprofile,
-        "lightinglevel": lightinglevel,
         "seatinginventory": seatinginventory,
         "privatebooths": privatebooths,
-        "two_table_fit": two_table_fit,
+        "lightinglevel": lightinglevel,
+        "angelaalertdestination": angelaalertdestination,
+        "exitinfrastructure": exitinfrastructure,
+        "payoutpreference": payoutpreference,
+        "tippingculture": tippingculture,
         "notes": notes,
         "created_at": datetime.utcnow(),
     }
-    result = venue_surveys.insert_one(doc)
+    venue_surveys.insert_one(doc)
 
     venues.update_one(
         {"_id": ObjectId(restaurant_id)},
         {"$set": {"lastsurveyedat": datetime.utcnow()}},
     )
 
-    return {"ok": True, "id": str(result.inserted_id)}
+    return {"ok": True}
