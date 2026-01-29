@@ -96,7 +96,7 @@ async def get_survey_for_venue(venue_id: str, request: Request):
     except Exception:
         raise HTTPException(status_code=404, detail="Invalid venue id")
 
-    venue = db["venues"].find_one({"_id": oid})
+    venue = db["venues_v2"].find_one({"_id": oid})
     if not venue:
         raise HTTPException(status_code=404, detail="Venue not found")
 
@@ -119,7 +119,7 @@ def get_survey_status_map():
 
 @app.get("/api/survey-overview")
 async def survey_overview():
-    venues_coll = db["venues"]
+    venues_coll = db["venues_v2"]
 
     # Fetch minimal fields
     venues = list(
@@ -199,7 +199,7 @@ async def venues_by_hierarchy(
     zone: Optional[str] = None,
     postcode: Optional[str] = None,
 ):
-    venues_coll = db["venues"]
+    venues_coll = db["venues_v2"]
 
     # Adjust these keys if your docs use different names
     query = {"city": city}
@@ -296,7 +296,7 @@ async def submit_venue_survey(
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid venue id")
 
-    venue = db["venues"].find_one({"_id": oid})
+    venue = db["venues_v2"].find_one({"_id": oid})
     if not venue:
         raise HTTPException(status_code=404, detail="Venue not found")
 
