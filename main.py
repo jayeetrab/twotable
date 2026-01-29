@@ -188,6 +188,61 @@ async def survey_overview():
         "by_city_zone_postcode": list(by_city_zone_pc.values()),
     }
     return JSONResponse(payload)
+from fastapi.responses import JSONResponse
+from bson import ObjectId
+from typing import Optional
+
+@app.get("/api/venues-by-hierarchy")
+async def venues_by_hierarchy(
+    city: str,
+    zone: Optional[str] = None,
+    postcode: Optional[str] = None,
+):
+    venues_coll = db["venues"]
+
+    # Adjust these keys if your docs use different names
+    query = {"city": city}
+    if zone:
+        query["zone"] = zone
+    if postcode:
+        query["postcode"] = postcode
+
+    venues = list(
+        venues_coll.find(
+            query,
+            {
+                "_id": 1,
+                "core.name": 1,
+                "location.formattedaddress": 1,
+                "city": 1,
+                "zone": 1,
+                "postcode": 1,
+            },
+        )
+    )
+
+    # Map survey status
+    status_map = {}
+    for doc in venue_surveys.find({}, {"venue_id": 1, "status": 1}):
+        status_map[str(doc["venue_id"])] = doc.get("status", "completed")
+
+    items = []
+    for v in venues:
+        vid = str(v["_id"])
+        items.append(
+            {
+                "id": vid,
+                "name": v.get("core", {}).get("name") or v.get("name"),
+                "address": v.get("location", {}).get("formattedaddress"),
+                "city": v.get("city"),
+                "zone": v.get("zone"),
+                "postcode": v.get("postcode"),
+                "status": status_map.get(vid, "not_started"),
+            }
+        )
+
+    return JSONResponse({"venues": items})
+
 @app.post("/api/venue-surveys")
 async def submit_venue_survey(
     request: Request,
