@@ -162,6 +162,9 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
+    .city-card {
+  min-height: 120px; /* or 130px if you prefer a bit taller */
+}
 
     .city-card-header {
       display: flex;
@@ -386,7 +389,8 @@
         const percent = total ? Math.round((completed / total) * 100) : 0;
 
         const card = document.createElement("div");
-        card.className = "card";
+        card.className = "card city-card";
+
 
         card.innerHTML = `
           <div class="city-card-header">
