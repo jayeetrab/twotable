@@ -9,6 +9,9 @@ from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from bson import ObjectId
 from datetime import datetime
+from fastapi.responses import JSONResponse
+from bson import ObjectId
+from typing import Optional
 
 
 load_dotenv()
@@ -189,9 +192,7 @@ async def survey_overview():
         "by_city_zone_postcode": list(by_city_zone_pc.values()),
     }
     return JSONResponse(payload)
-from fastapi.responses import JSONResponse
-from bson import ObjectId
-from typing import Optional
+
 
 @app.get("/api/venues-by-hierarchy")
 async def venues_by_hierarchy(
@@ -199,9 +200,8 @@ async def venues_by_hierarchy(
     zone: Optional[str] = None,
     postcode: Optional[str] = None,
 ):
-    venues_coll = db["venues_v2"]
+    venues_coll = db["venues"]
 
-    # Adjust these keys if your docs use different names
     query = {"city": city}
     if zone:
         query["zone"] = zone
@@ -209,22 +209,19 @@ async def venues_by_hierarchy(
         query["postcode"] = postcode
 
     venues = list(
-    venues_coll.find(
-        query,
-        {
-            "_id": 1,
-            "photos": 1,                      # add this
-            "location.formattedaddress": 1,
-            "city": 1,
-            "zone": 1,
-            "postcode": 1,
-        },
+        venues_coll.find(
+            query,
+            {
+                "_id": 1,
+                "core.name": 1,                 # ← include core.name
+                "location.formatted_address": 1,
+                "city": 1,
+                "zone": 1,
+                "postcode": 1,
+            },
+        )
     )
-)
 
-
-
-    # Map survey status
     status_map = {}
     for doc in venue_surveys.find({}, {"venue_id": 1, "status": 1}):
         status_map[str(doc["venue_id"])] = doc.get("status", "completed")
@@ -232,23 +229,21 @@ async def venues_by_hierarchy(
     items = []
     for v in venues:
         vid = str(v["_id"])
+        core = v.get("core") or {}
 
-        # Try to pull a nicer label from photos.authorAttributions[0].displayName
-        core = v.get("core", {}) or {}
-        display_name = core.get("name") or v.get("name") or "Unnamed venue"
+        name = core.get("name") or v.get("name") or "Unnamed venue"
 
         items.append(
             {
                 "id": vid,
-                "name": display_name,
-                "address": v.get("location", {}).get("formattedaddress"),
+                "name": name,
+                "address": (v.get("location") or {}).get("formatted_address"),
                 "city": v.get("city"),
                 "zone": v.get("zone"),
                 "postcode": v.get("postcode"),
                 "status": status_map.get(vid, "not_started"),
             }
         )
-
 
     return JSONResponse({"venues": items})
 
