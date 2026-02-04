@@ -1,42 +1,41 @@
+# main.py
 import os
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from pymongo import MongoClient
-from dotenv import load_dotenv
+from datetime import datetime
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from bson import ObjectId
-from datetime import datetime
-from fastapi.responses import JSONResponse
-from bson import ObjectId
-from typing import Optional
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-
-
+from pymongo import MongoClient
+from pydantic import BaseModel, EmailStr
+from bson import ObjectId
+from dotenv import load_dotenv
+from typing import Optional
 
 load_dotenv()
 
+# MongoDB setup
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-
 client = MongoClient(MONGO_URI)
-db = client["TwoTable"]  # this is the DB name you should open in Compass
-venue_surveys = db["venue_surveys"]
+db = client["TwoTable"]
 
+# Collections
+venue_surveys = db["venue_surveys"]
 dating_survey = db["dating_survey_submissions"]
 venue_applications = db["venue_applications"]
 waitlist = db["waitlist"]
 contact_submissions = db["contact_submissions"]
 
-
+# FastAPI app
 app = FastAPI()
+
+# CORS setup
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
     "https://twotable.co.uk",
     "https://www.twotable.co.uk",
-    "https://twotable-frontend.pages.dev",  # ← ADD THIS
+    "https://twotable-frontend.pages.dev",
 ]
 
 app.add_middleware(
@@ -47,14 +46,58 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
-# static/ for logo etc if you need it
-# app.mount("/static", StaticFiles(directory="static"), name="static")
+# Templates (if needed for old HTML pages)
 templates = Jinja2Templates(directory="templates")
 
 
-# ---------- PAGES ----------
+# ========== PYDANTIC MODELS ==========
+
+class WaitlistPayload(BaseModel):
+    email: EmailStr
+
+
+class ContactPayload(BaseModel):
+    name: str
+    email: EmailStr
+    message: str
+
+
+# ========== HEALTH CHECK ==========
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "message": "Backend is running"}
+
+
+# ========== LANDING PAGE APIS ==========
+
+@app.post("/api/waitlist")
+async def api_waitlist(payload: WaitlistPayload):
+    """Save email to waitlist"""
+    doc = {
+        "email": payload.email,
+        "source": "landing",
+        "created_at": datetime.utcnow(),
+    }
+    result = waitlist.insert_one(doc)
+    return {"ok": True, "id": str(result.inserted_id)}
+
+
+@app.post("/api/contact")
+async def api_contact(payload: ContactPayload):
+    """Save contact form submission"""
+    doc = {
+        "name": payload.name,
+        "email": payload.email,
+        "message": payload.message,
+        "source": "landing",
+        "created_at": datetime.utcnow(),
+    }
+    result = contact_submissions.insert_one(doc)
+    return {"ok": True, "id": str(result.inserted_id)}
+
+
+# ========== EXISTING ENDPOINTS (kept for compatibility) ==========
 
 @app.get("/", response_class=HTMLResponse)
 async def get_index(request: Request):
@@ -65,47 +108,8 @@ async def get_index(request: Request):
 async def get_venues(request: Request):
     return templates.TemplateResponse("venues.html", {"request": request})
 
-from pydantic import BaseModel, EmailStr
 
-waitlist = db["waitlist"]
-contact_submissions = db["contact_submissions"]
-
-
-class WaitlistPayload(BaseModel):
-  email: EmailStr
-
-
-@app.post("/api/waitlist")
-async def api_waitlist(payload: WaitlistPayload):
-  doc = {
-      "email": payload.email,
-      "source": "landing",
-      "created_at": datetime.utcnow(),
-  }
-  result = waitlist.insert_one(doc)
-  return {"ok": True, "id": str(result.inserted_id)}
-
-
-class ContactPayload(BaseModel):
-  name: str
-  email: EmailStr
-  message: str
-
-
-@app.post("/api/contact")
-async def api_contact(payload: ContactPayload):
-  doc = {
-      "name": payload.name,
-      "email": payload.email,
-      "message": payload.message,
-      "source": "landing",
-      "created_at": datetime.utcnow(),
-  }
-  result = contact_submissions.insert_one(doc)
-  return {"ok": True, "id": str(result.inserted_id)}
-
-
-# ---------- API 1: Dater survey ----------
+# ---------- DATER SURVEY ----------
 
 @app.post("/api/dater-survey")
 async def submit_dater_survey(
@@ -147,9 +151,9 @@ async def submit_dater_survey(
     print("Inserted dater survey:", result.inserted_id)
     return RedirectResponse(url="/?submitted=1", status_code=303)
 
+
 @app.get("/surveys", response_class=HTMLResponse)
 async def get_surveys_dashboard(request: Request):
-    # Shell page; data loaded via JS
     return templates.TemplateResponse("surveys.html", {"request": request})
 
 
@@ -173,6 +177,7 @@ async def get_survey_for_venue(venue_id: str, request: Request):
     }
     return templates.TemplateResponse("survey_form.html", context)
 
+
 def get_survey_status_map():
     """Map venue_id -> status for quick lookups."""
     status_map = {}
@@ -185,7 +190,6 @@ def get_survey_status_map():
 async def survey_overview():
     venues_coll = db["venues_v2"]
 
-    # Fetch minimal fields
     venues = list(
         venues_coll.find(
             {},
@@ -274,7 +278,7 @@ async def venues_by_hierarchy(
             query,
             {
                 "_id": 1,
-                "core.name": 1,                 # ← include core.name
+                "core.name": 1,
                 "location.formatted_address": 1,
                 "city": 1,
                 "zone": 1,
@@ -308,43 +312,36 @@ async def venues_by_hierarchy(
 
     return JSONResponse({"venues": items})
 
+
 @app.post("/api/venue-surveys")
 async def submit_venue_survey(
     request: Request,
     venue_id: str = Form(...),
     surveyor_name: str = Form(...),
-    status: str = Form("completed"),  # or "in_progress"
-    # Section: Dates capacity
+    status: str = Form("completed"),
     nights: str = Form(""),
     capacity: str = Form(""),
     payout: str = Form(""),
-    # Part 1
     dead_zone_revenue: str = Form(""),
     hardest_slots: str = Form(""),
     cancellation_fee: str = Form(""),
     cancellation_fee_collection: str = Form(""),
     pricing_preference: str = Form(""),
-    # Part 2
     pos_integration: str = Form(""),
     tablet_willingness: str = Form(""),
     connectivity: str = Form(""),
     checkin_hardware: str = Form(""),
-    # Part 3
     greeting_protocol: str = Form(""),
     bill_splitting: str = Form(""),
     menu_agility: str = Form(""),
-    # Part 4
     acoustic_profile: str = Form(""),
     seating_inventory: str = Form(""),
     private_booths: str = Form(""),
     lighting_level: str = Form(""),
-    # Part 5
     angela_alert_destination: str = Form(""),
     exit_infrastructure: str = Form(""),
-    # Part 6
     payout_preference: str = Form(""),
     tipping_culture: str = Form(""),
-    # Final notes
     notes: str = Form(""),
 ):
     try:
@@ -409,62 +406,46 @@ async def submit_venue_survey(
         result = venue_surveys.insert_one(base)
         doc_id = result.inserted_id
 
-    # After saving, go back to venue survey page
     return RedirectResponse(url=f"/surveys/{venue_id}?saved=1", status_code=303)
 
 
-# ---------- API 2: Venue application ----------
+# ---------- VENUE APPLICATION ----------
 
 @app.post("/api/venue-application")
 async def submit_venue_application(
     request: Request,
-    # About venue
     venue: str = Form(...),
     city: str = Form(...),
     type: str = Form(...),
     web: str = Form(""),
-    # Contact
     contact: str = Form(...),
     role: str = Form(""),
     email: str = Form(...),
     phone: str = Form(""),
-    # Dates config
     nights: str = Form(""),
     capacity: str = Form(""),
     payout: str = Form(""),
     notes: str = Form(""),
-
-    # Part 1
     dead_zone_revenue: str = Form(""),
     hardest_slots: str = Form(""),
     cancellation_fee: str = Form(""),
     cancellation_fee_collection: str = Form(""),
     pricing_preference: str = Form(""),
-
-    # Part 2
     pos_integration: str = Form(""),
     tablet_willingness: str = Form(""),
     connectivity: str = Form(""),
     checkin_hardware: str = Form(""),
-
-    # Part 3
     greeting_protocol: str = Form(""),
     bill_splitting: str = Form(""),
     menu_agility: str = Form(""),
-
-    # Part 4
     acoustic_profile: str = Form(""),
     seating_inventory: str = Form(""),
     private_booths: str = Form(""),
     lighting_level: str = Form(""),
-
-    # Part 5
     angela_alert_destination: str = Form(""),
     exit_infrastructure: str = Form(""),
-
-    # Part 6
     payout_preference: str = Form(""),
-    tipping_culture: str = Form(""),
+        tipping_culture: str = Form(""),
 ):
     doc = {
         "venue": venue,
@@ -503,3 +484,8 @@ async def submit_venue_application(
     result = venue_applications.insert_one(doc)
     print("Inserted venue application:", result.inserted_id)
     return RedirectResponse(url="/venues?submitted=1", status_code=303)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
