@@ -12,6 +12,8 @@ from datetime import datetime
 from fastapi.responses import JSONResponse
 from bson import ObjectId
 from typing import Optional
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 load_dotenv()
@@ -26,6 +28,20 @@ dating_survey = db["dating_survey_submissions"]
 venue_applications = db["venue_applications"]
 
 app = FastAPI()
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "https://twotable.co.uk",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # static/ for logo etc if you need it
 # app.mount("/static", StaticFiles(directory="static"), name="static")
