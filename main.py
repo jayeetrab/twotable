@@ -32,9 +32,11 @@ contact_submissions = db["contact_submissions"]
 
 app = FastAPI()
 origins = [
-    "http://localhost:3000",
     "http://localhost:5173",
+    "http://localhost:3000",
     "https://twotable.co.uk",
+    "https://www.twotable.co.uk",
+    "https://twotable-frontend.pages.dev",  # ← ADD THIS
 ]
 
 app.add_middleware(
@@ -44,6 +46,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 # static/ for logo etc if you need it
