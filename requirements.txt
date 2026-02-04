@@ -1,6 +1,14 @@
-fastapi
-uvicorn
-pymongo
-python-dotenv
-jinja2
-python-multipart
+fastapi>=0.112.0,<0.113.0
+uvicorn[standard]>=0.30.0,<0.31.0
+
+pymongo>=4.7.0,<5.0.0
+python-dotenv>=1.0.0,<2.0.0
+
+jinja2>=3.1.0,<4.0.0
+python-multipart>=0.0.9,<0.0.10
+
+pydantic>=2.7.0,<3.0.0
+pydantic[email]>=2.7.0,<3.0.0
+
+# CORS and ASGI stack (FastAPI already depends on these, but keeping them explicit is fine)
+starlette>=0.37.0,<0.38.0
