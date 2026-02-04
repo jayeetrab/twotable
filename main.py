@@ -26,6 +26,9 @@ venue_surveys = db["venue_surveys"]
 
 dating_survey = db["dating_survey_submissions"]
 venue_applications = db["venue_applications"]
+waitlist = db["waitlist"]
+contact_submissions = db["contact_submissions"]
+
 
 app = FastAPI()
 origins = [
@@ -59,6 +62,37 @@ async def get_index(request: Request):
 async def get_venues(request: Request):
     return templates.TemplateResponse("venues.html", {"request": request})
 
+from pydantic import BaseModel, EmailStr
+class ContactPayload(BaseModel):
+    name: str
+    email: EmailStr
+    message: str
+
+@app.post("/api/contact")
+async def api_contact(payload: ContactPayload):
+    doc = {
+        "name": payload.name,
+        "email": payload.email,
+        "message": payload.message,
+        "source": "landing",
+        "created_at": datetime.utcnow(),
+    }
+    result = contact_submissions.insert_one(doc)
+    return {"ok": True, "id": str(result.inserted_id)}
+
+
+class WaitlistPayload(BaseModel):
+    email: EmailStr
+
+@app.post("/api/waitlist")
+async def api_waitlist(payload: WaitlistPayload):
+    doc = {
+        "email": payload.email,
+        "source": "landing",
+        "created_at": datetime.utcnow(),
+    }
+    result = waitlist.insert_one(doc)
+    return {"ok": True, "id": str(result.inserted_id)}
 
 # ---------- API 1: Dater survey ----------
 
