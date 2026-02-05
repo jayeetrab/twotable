@@ -1,491 +1,423 @@
 # main.py
 import os
 from datetime import datetime
-from fastapi import FastAPI, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pymongo import MongoClient
 from pydantic import BaseModel, EmailStr
+from pymongo import MongoClient
 from bson import ObjectId
 from dotenv import load_dotenv
-from typing import Optional
+import logging
 
 load_dotenv()
 
-# MongoDB setup
+# ========== LOGGING ==========
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ========== MONGODB SETUP ==========
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-client = MongoClient(MONGO_URI)
-db = client["TwoTable"]
+try:
+    client = MongoClient(MONGO_URI)
+    db = client["TwoTable"]
+    # Test connection
+    client.admin.command('ping')
+    logger.info("✓ Connected to MongoDB")
+except Exception as e:
+    logger.error(f"✗ MongoDB connection failed: {e}")
+    raise
 
 # Collections
-venue_surveys = db["venue_surveys"]
-dating_survey = db["dating_survey_submissions"]
-venue_applications = db["venue_applications"]
-waitlist = db["waitlist"]
-contact_submissions = db["contact_submissions"]
+waitlist_collection = db["waitlist"]
+contact_collection = db["contact_submissions"]
 
-# FastAPI app
-app = FastAPI()
+# ========== FASTAPI SETUP ==========
+app = FastAPI(
+    title="TwoTable API",
+    version="1.0.0",
+    description="API for TwoTable - Curated Date Nights"
+)
 
-# CORS setup
+# ========== CORS CONFIGURATION ==========
 origins = [
-    "http://localhost:5173",
+    # Local development
     "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+    
+    # Production domains
     "https://twotable.co.uk",
     "https://www.twotable.co.uk",
+    
+    # Cloudflare Pages
     "https://twotable-frontend.pages.dev",
+    "https://twotable.pages.dev",
+    
+    # Allow subdomain variations
+    "https://*.twotable.co.uk",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    max_age=3600,
 )
 
-# Templates (if needed for old HTML pages)
-templates = Jinja2Templates(directory="templates")
-
-
 # ========== PYDANTIC MODELS ==========
-
 class WaitlistPayload(BaseModel):
+    """Waitlist signup payload"""
     email: EmailStr
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "email": "user@example.com"
+            }
+        }
 
 
 class ContactPayload(BaseModel):
+    """Contact form submission payload"""
     name: str
     email: EmailStr
     message: str
 
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "name": "John Doe",
+                "email": "john@example.com",
+                "message": "I'm interested in becoming a partner."
+            }
+        }
+
+
+class SuccessResponse(BaseModel):
+    """Standard success response"""
+    ok: bool
+    id: str = None
+    message: str = None
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "ok": True,
+                "id": "507f1f77bcf86cd799439011",
+                "message": "Success"
+            }
+        }
+
+
+class WaitlistEntryResponse(BaseModel):
+    """Waitlist entry response"""
+    id: str
+    email: str
+    created_at: datetime
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "507f1f77bcf86cd799439011",
+                "email": "user@example.com",
+                "created_at": "2024-01-15T10:30:00"
+            }
+        }
+
+
+class ContactSubmissionResponse(BaseModel):
+    """Contact submission response"""
+    id: str
+    name: str
+    email: str
+    message: str
+    created_at: datetime
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "507f1f77bcf86cd799439011",
+                "name": "John Doe",
+                "email": "john@example.com",
+                "message": "I'm interested in becoming a partner.",
+                "created_at": "2024-01-15T10:30:00"
+            }
+        }
+
 
 # ========== HEALTH CHECK ==========
-
 @app.get("/health")
-async def health():
-    return {"status": "ok", "message": "Backend is running"}
-
-
-# ========== LANDING PAGE APIS ==========
-
-@app.post("/api/waitlist")
-async def api_waitlist(payload: WaitlistPayload):
-    """Save email to waitlist"""
-    doc = {
-        "email": payload.email,
-        "source": "landing",
-        "created_at": datetime.utcnow(),
-    }
-    result = waitlist.insert_one(doc)
-    return {"ok": True, "id": str(result.inserted_id)}
-
-
-@app.post("/api/contact")
-async def api_contact(payload: ContactPayload):
-    """Save contact form submission"""
-    doc = {
-        "name": payload.name,
-        "email": payload.email,
-        "message": payload.message,
-        "source": "landing",
-        "created_at": datetime.utcnow(),
-    }
-    result = contact_submissions.insert_one(doc)
-    return {"ok": True, "id": str(result.inserted_id)}
-
-
-# ========== EXISTING ENDPOINTS (kept for compatibility) ==========
-
-@app.get("/", response_class=HTMLResponse)
-async def get_index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
-@app.get("/venues", response_class=HTMLResponse)
-async def get_venues(request: Request):
-    return templates.TemplateResponse("venues.html", {"request": request})
-
-
-# ---------- DATER SURVEY ----------
-
-@app.post("/api/dater-survey")
-async def submit_dater_survey(
-    request: Request,
-    age_range: str = Form(...),
-    city: str = Form(...),
-    status: str = Form(...),
-    intent: str = Form(...),
-    dates_per_month: str = Form(""),
-    ghosting_freq: str = Form(""),
-    noshow_freq: str = Form(""),
-    frustrations: str = Form(""),
-    venue_type: str = Form(""),
-    try_twotable: str = Form(""),
-    deposit_range: str = Form(""),
-    safety: str = Form(""),
-    ideal_date: str = Form(""),
-    email: str = Form(...),
-    source: str = Form("landing-survey"),
-):
-    doc = {
-        "age_range": age_range,
-        "city": city,
-        "status": status,
-        "intent": intent,
-        "dates_per_month": dates_per_month,
-        "ghosting_freq": ghosting_freq,
-        "noshow_freq": noshow_freq,
-        "frustrations": frustrations,
-        "venue_type": venue_type,
-        "try_twotable": try_twotable,
-        "deposit_range": deposit_range,
-        "safety": safety,
-        "ideal_date": ideal_date,
-        "email": email,
-        "source": source,
-    }
-    result = dating_survey.insert_one(doc)
-    print("Inserted dater survey:", result.inserted_id)
-    return RedirectResponse(url="/?submitted=1", status_code=303)
-
-
-@app.get("/surveys", response_class=HTMLResponse)
-async def get_surveys_dashboard(request: Request):
-    return templates.TemplateResponse("surveys.html", {"request": request})
-
-
-@app.get("/surveys/{venue_id}", response_class=HTMLResponse)
-async def get_survey_for_venue(venue_id: str, request: Request):
+async def health_check():
+    """Health check endpoint - returns connection status"""
     try:
-        oid = ObjectId(venue_id)
-    except Exception:
-        raise HTTPException(status_code=404, detail="Invalid venue id")
+        client.admin.command('ping')
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "service": "TwoTable API"
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="Database connection failed"
+        )
 
-    venue = db["venues_v2"].find_one({"_id": oid})
-    if not venue:
-        raise HTTPException(status_code=404, detail="Venue not found")
 
-    survey = venue_surveys.find_one({"venue_id": oid})
-
-    context = {
-        "request": request,
-        "venue": venue,
-        "survey": survey,
+@app.get("/")
+async def root():
+    """Root endpoint - API info"""
+    return {
+        "name": "TwoTable API",
+        "version": "1.0.0",
+        "status": "running",
+        "endpoints": {
+            "health": "/health",
+            "waitlist": "/api/waitlist",
+            "contact": "/api/contact",
+            "docs": "/docs"
+        }
     }
-    return templates.TemplateResponse("survey_form.html", context)
 
 
-def get_survey_status_map():
-    """Map venue_id -> status for quick lookups."""
-    status_map = {}
-    for doc in venue_surveys.find({}, {"venue_id": 1, "status": 1}):
-        status_map[str(doc["venue_id"])] = doc.get("status", "completed")
-    return status_map
-
-
-@app.get("/api/survey-overview")
-async def survey_overview():
-    venues_coll = db["venues_v2"]
-
-    venues = list(
-        venues_coll.find(
-            {},
-            {
-                "_id": 1,
-                "core.name": 1,
-                "city": 1,
-                "zone": 1,
-                "postcode": 1,
-            },
-        )
-    )
-
-    status_map = get_survey_status_map()
-
-    by_city = {}
-    by_city_zone = {}
-    by_city_zone_pc = {}
-
-    for v in venues:
-        vid = str(v["_id"])
-        city = v.get("city") or "Unknown"
-        zone = v.get("zone") or "Unknown"
-        pc = v.get("postcode") or "Unknown"
-
-        status = status_map.get(vid, "not_started")
-        is_done = status == "completed"
-
-        # City level
-        city_bucket = by_city.setdefault(city, {"total": 0, "completed": 0})
-        city_bucket["total"] += 1
-        if is_done:
-            city_bucket["completed"] += 1
-
-        # City+zone
-        cz_key = f"{city}|{zone}"
-        cz_bucket = by_city_zone.setdefault(
-            cz_key, {"city": city, "zone": zone, "total": 0, "completed": 0}
-        )
-        cz_bucket["total"] += 1
-        if is_done:
-            cz_bucket["completed"] += 1
-
-        # City+zone+pc
-        czp_key = f"{city}|{zone}|{pc}"
-        czp_bucket = by_city_zone_pc.setdefault(
-            czp_key,
-            {
-                "city": city,
-                "zone": zone,
-                "postcode": pc,
-                "total": 0,
-                "completed": 0,
-            },
-        )
-        czp_bucket["total"] += 1
-        if is_done:
-            czp_bucket["completed"] += 1
-
-    payload = {
-        "by_city": [
-            {"city": c, **vals} for c, vals in sorted(by_city.items(), key=lambda x: x[0])
-        ],
-        "by_city_zone": list(by_city_zone.values()),
-        "by_city_zone_postcode": list(by_city_zone_pc.values()),
-    }
-    return JSONResponse(payload)
-
-
-@app.get("/api/venues-by-hierarchy")
-async def venues_by_hierarchy(
-    city: str,
-    zone: Optional[str] = None,
-    postcode: Optional[str] = None,
-):
-    venues_coll = db["venues_v2"]
-
-    query = {"city": city}
-    if zone:
-        query["zone"] = zone
-    if postcode:
-        query["postcode"] = postcode
-
-    venues = list(
-        venues_coll.find(
-            query,
-            {
-                "_id": 1,
-                "core.name": 1,
-                "location.formatted_address": 1,
-                "city": 1,
-                "zone": 1,
-                "postcode": 1,
-            },
-        )
-    )
-
-    status_map = {}
-    for doc in venue_surveys.find({}, {"venue_id": 1, "status": 1}):
-        status_map[str(doc["venue_id"])] = doc.get("status", "completed")
-
-    items = []
-    for v in venues:
-        vid = str(v["_id"])
-        core = v.get("core") or {}
-
-        name = core.get("name") or v.get("name") or "Unnamed venue"
-
-        items.append(
-            {
-                "id": vid,
-                "name": name,
-                "address": (v.get("location") or {}).get("formatted_address"),
-                "city": v.get("city"),
-                "zone": v.get("zone"),
-                "postcode": v.get("postcode"),
-                "status": status_map.get(vid, "not_started"),
+# ========== WAITLIST ENDPOINTS ==========
+@app.post("/api/waitlist", response_model=SuccessResponse)
+async def submit_waitlist(payload: WaitlistPayload):
+    """
+    Add email to waitlist.
+    
+    Returns:
+    - ok: true if successful
+    - id: MongoDB document ID
+    - message: Status message
+    """
+    try:
+        email_lower = payload.email.lower()
+        
+        # Check if email already exists
+        existing = waitlist_collection.find_one({"email": email_lower})
+        if existing:
+            logger.info(f"Email already on waitlist: {email_lower}")
+            return {
+                "ok": True,
+                "id": str(existing["_id"]),
+                "message": "Already on waitlist",
             }
-        )
+        
+        # Insert new entry
+        doc = {
+            "email": email_lower,
+            "created_at": datetime.utcnow(),
+        }
+        result = waitlist_collection.insert_one(doc)
+        logger.info(f"Added to waitlist: {email_lower}")
+        
+        return {
+            "ok": True,
+            "id": str(result.inserted_id),
+            "message": "Added to waitlist",
+        }
+    except Exception as e:
+        logger.error(f"Waitlist submission error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to add to waitlist")
 
-    return JSONResponse({"venues": items})
 
-
-@app.post("/api/venue-surveys")
-async def submit_venue_survey(
-    request: Request,
-    venue_id: str = Form(...),
-    surveyor_name: str = Form(...),
-    status: str = Form("completed"),
-    nights: str = Form(""),
-    capacity: str = Form(""),
-    payout: str = Form(""),
-    dead_zone_revenue: str = Form(""),
-    hardest_slots: str = Form(""),
-    cancellation_fee: str = Form(""),
-    cancellation_fee_collection: str = Form(""),
-    pricing_preference: str = Form(""),
-    pos_integration: str = Form(""),
-    tablet_willingness: str = Form(""),
-    connectivity: str = Form(""),
-    checkin_hardware: str = Form(""),
-    greeting_protocol: str = Form(""),
-    bill_splitting: str = Form(""),
-    menu_agility: str = Form(""),
-    acoustic_profile: str = Form(""),
-    seating_inventory: str = Form(""),
-    private_booths: str = Form(""),
-    lighting_level: str = Form(""),
-    angela_alert_destination: str = Form(""),
-    exit_infrastructure: str = Form(""),
-    payout_preference: str = Form(""),
-    tipping_culture: str = Form(""),
-    notes: str = Form(""),
-):
+@app.get("/api/waitlist/count")
+async def get_waitlist_count():
+    """Get total number of waitlist entries"""
     try:
-        oid = ObjectId(venue_id)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid venue id")
+        count = waitlist_collection.count_documents({})
+        return {"count": count}
+    except Exception as e:
+        logger.error(f"Count query error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get count")
 
-    venue = db["venues_v2"].find_one({"_id": oid})
-    if not venue:
-        raise HTTPException(status_code=404, detail="Venue not found")
 
-    now = datetime.utcnow()
-
-    survey_body = {
-        "nights": nights,
-        "capacity": capacity,
-        "payout": payout,
-        "dead_zone_revenue": dead_zone_revenue,
-        "hardest_slots": hardest_slots,
-        "cancellation_fee": cancellation_fee,
-        "cancellation_fee_collection": cancellation_fee_collection,
-        "pricing_preference": pricing_preference,
-        "pos_integration": pos_integration,
-        "tablet_willingness": tablet_willingness,
-        "connectivity": connectivity,
-        "checkin_hardware": checkin_hardware,
-        "greeting_protocol": greeting_protocol,
-        "bill_splitting": bill_splitting,
-        "menu_agility": menu_agility,
-        "acoustic_profile": acoustic_profile,
-        "seating_inventory": seating_inventory,
-        "private_booths": private_booths,
-        "lighting_level": lighting_level,
-        "angela_alert_destination": angela_alert_destination,
-        "exit_infrastructure": exit_infrastructure,
-        "payout_preference": payout_preference,
-        "tipping_culture": tipping_culture,
-        "notes": notes,
-    }
-
-    base = {
-        "venue_id": oid,
-        "google_place_id": venue.get("core", {}).get("google_place_id"),
-        "city": venue.get("city"),
-        "zone": venue.get("zone"),
-        "postcode": venue.get("postcode"),
-        "surveyor_name": surveyor_name,
-        "status": status,
-        "survey": survey_body,
-        "updated_at": now,
-    }
-
-    existing = venue_surveys.find_one({"venue_id": oid})
-    if existing:
-        venue_surveys.update_one(
-            {"_id": existing["_id"]},
-            {"$set": base},
+@app.get("/api/waitlist", response_model=dict)
+async def get_all_waitlist(skip: int = 0, limit: int = 100):
+    """
+    Get all waitlist entries (admin endpoint).
+    
+    Query params:
+    - skip: Number of entries to skip (default: 0)
+    - limit: Maximum entries to return (default: 100, max: 1000)
+    """
+    try:
+        if limit > 1000:
+            limit = 1000
+        
+        entries = list(
+            waitlist_collection.find({})
+            .skip(skip)
+            .limit(limit)
+            .sort("created_at", -1)
         )
-        doc_id = existing["_id"]
-    else:
-        base["created_at"] = now
-        result = venue_surveys.insert_one(base)
-        doc_id = result.inserted_id
+        
+        for entry in entries:
+            entry["id"] = str(entry["_id"])
+            del entry["_id"]
+        
+        total = waitlist_collection.count_documents({})
+        return {
+            "entries": entries,
+            "total": total,
+            "skip": skip,
+            "limit": limit,
+            "returned": len(entries)
+        }
+    except Exception as e:
+        logger.error(f"Waitlist query error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve waitlist")
 
-    return RedirectResponse(url=f"/surveys/{venue_id}?saved=1", status_code=303)
+
+# ========== CONTACT ENDPOINTS ==========
+@app.post("/api/contact", response_model=SuccessResponse)
+async def submit_contact(payload: ContactPayload):
+    """
+    Submit contact form.
+    
+    Returns:
+    - ok: true if successful
+    - id: MongoDB document ID
+    - message: Status message
+    """
+    try:
+        doc = {
+            "name": payload.name.strip(),
+            "email": payload.email.lower(),
+            "message": payload.message.strip(),
+            "created_at": datetime.utcnow(),
+        }
+        result = contact_collection.insert_one(doc)
+        logger.info(f"Contact submission from: {payload.email}")
+        
+        return {
+            "ok": True,
+            "id": str(result.inserted_id),
+            "message": "Message submitted successfully",
+        }
+    except Exception as e:
+        logger.error(f"Contact submission error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to submit message")
 
 
-# ---------- VENUE APPLICATION ----------
+@app.get("/api/contact/{contact_id}", response_model=ContactSubmissionResponse)
+async def get_contact(contact_id: str):
+    """Get specific contact submission by ID"""
+    try:
+        oid = ObjectId(contact_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid contact ID format")
+    
+    try:
+        contact = contact_collection.find_one({"_id": oid})
+        if not contact:
+            raise HTTPException(status_code=404, detail="Contact not found")
+        
+        contact["id"] = str(contact["_id"])
+        del contact["_id"]
+        return contact
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Contact query error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve contact")
 
-@app.post("/api/venue-application")
-async def submit_venue_application(
-    request: Request,
-    venue: str = Form(...),
-    city: str = Form(...),
-    type: str = Form(...),
-    web: str = Form(""),
-    contact: str = Form(...),
-    role: str = Form(""),
-    email: str = Form(...),
-    phone: str = Form(""),
-    nights: str = Form(""),
-    capacity: str = Form(""),
-    payout: str = Form(""),
-    notes: str = Form(""),
-    dead_zone_revenue: str = Form(""),
-    hardest_slots: str = Form(""),
-    cancellation_fee: str = Form(""),
-    cancellation_fee_collection: str = Form(""),
-    pricing_preference: str = Form(""),
-    pos_integration: str = Form(""),
-    tablet_willingness: str = Form(""),
-    connectivity: str = Form(""),
-    checkin_hardware: str = Form(""),
-    greeting_protocol: str = Form(""),
-    bill_splitting: str = Form(""),
-    menu_agility: str = Form(""),
-    acoustic_profile: str = Form(""),
-    seating_inventory: str = Form(""),
-    private_booths: str = Form(""),
-    lighting_level: str = Form(""),
-    angela_alert_destination: str = Form(""),
-    exit_infrastructure: str = Form(""),
-    payout_preference: str = Form(""),
-        tipping_culture: str = Form(""),
-):
-    doc = {
-        "venue": venue,
-        "city": city,
-        "type": type,
-        "web": web,
-        "contact": contact,
-        "role": role,
-        "email": email,
-        "phone": phone,
-        "nights": nights,
-        "capacity": capacity,
-        "payout": payout,
-        "notes": notes,
-        "dead_zone_revenue": dead_zone_revenue,
-        "hardest_slots": hardest_slots,
-        "cancellation_fee": cancellation_fee,
-        "cancellation_fee_collection": cancellation_fee_collection,
-        "pricing_preference": pricing_preference,
-        "pos_integration": pos_integration,
-        "tablet_willingness": tablet_willingness,
-        "connectivity": connectivity,
-        "checkin_hardware": checkin_hardware,
-        "greeting_protocol": greeting_protocol,
-        "bill_splitting": bill_splitting,
-        "menu_agility": menu_agility,
-        "acoustic_profile": acoustic_profile,
-        "seating_inventory": seating_inventory,
-        "private_booths": private_booths,
-        "lighting_level": lighting_level,
-        "angela_alert_destination": angela_alert_destination,
-        "exit_infrastructure": exit_infrastructure,
-        "payout_preference": payout_preference,
-        "tipping_culture": tipping_culture,
+
+@app.get("/api/contact", response_model=dict)
+async def get_all_contacts(skip: int = 0, limit: int = 100):
+    """
+    Get all contact submissions (admin endpoint).
+    
+    Query params:
+    - skip: Number of entries to skip (default: 0)
+    - limit: Maximum entries to return (default: 100, max: 1000)
+    """
+    try:
+        if limit > 1000:
+            limit = 1000
+        
+        submissions = list(
+            contact_collection.find({})
+            .skip(skip)
+            .limit(limit)
+            .sort("created_at", -1)
+        )
+        
+        for submission in submissions:
+            submission["id"] = str(submission["_id"])
+            del submission["_id"]
+        
+        total = contact_collection.count_documents({})
+        return {
+            "submissions": submissions,
+            "total": total,
+            "skip": skip,
+            "limit": limit,
+            "returned": len(submissions)
+        }
+    except Exception as e:
+        logger.error(f"Contact query error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve contacts")
+
+
+# ========== ERROR HANDLERS ==========
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    """Custom HTTP exception handler"""
+    logger.error(f"HTTP Exception: {exc.detail}")
+    return {
+        "ok": False,
+        "error": exc.detail,
+        "status_code": exc.status_code
     }
-    result = venue_applications.insert_one(doc)
-    print("Inserted venue application:", result.inserted_id)
-    return RedirectResponse(url="/venues?submitted=1", status_code=303)
 
 
+@app.exception_handler(Exception)
+async def general_exception_handler(request, exc):
+    """General exception handler"""
+    logger.error(f"Unhandled exception: {exc}")
+    return {
+        "ok": False,
+        "error": "Internal server error",
+        "status_code": 500
+    }
+
+
+# ========== STARTUP & SHUTDOWN ==========
+@app.on_event("startup")
+async def startup_event():
+    """Initialize collections with indexes on startup"""
+    try:
+        # Create indexes for faster queries
+        waitlist_collection.create_index("email", unique=True)
+        contact_collection.create_index("email")
+        contact_collection.create_index("created_at")
+        logger.info("✓ Database indexes created")
+    except Exception as e:
+        logger.warning(f"Index creation warning: {e}")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Close MongoDB connection on shutdown"""
+    try:
+        client.close()
+        logger.info("✓ MongoDB connection closed")
+    except Exception as e:
+        logger.error(f"Shutdown error: {e}")
+
+
+# ========== RUN ==========
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8000)),
+        reload=os.getenv("ENVIRONMENT") != "production",
+        log_level="info"
+    )
