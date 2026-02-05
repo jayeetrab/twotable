@@ -8,17 +8,26 @@ from pymongo import MongoClient
 from bson import ObjectId
 from dotenv import load_dotenv
 import logging
+import sys
 
 load_dotenv()
 
 # ========== LOGGING ==========
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
+)
 logger = logging.getLogger(__name__)
 
 # ========== MONGODB SETUP ==========
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    logger.error("MONGO_URI not set in environment variables")
+    raise ValueError("MONGO_URI environment variable is required")
+
 try:
-    client = MongoClient(MONGO_URI)
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=10000)
     db = client["TwoTable"]
     # Test connection
     client.admin.command('ping')
@@ -108,42 +117,6 @@ class SuccessResponse(BaseModel):
                 "ok": True,
                 "id": "507f1f77bcf86cd799439011",
                 "message": "Success"
-            }
-        }
-
-
-class WaitlistEntryResponse(BaseModel):
-    """Waitlist entry response"""
-    id: str
-    email: str
-    created_at: datetime
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "id": "507f1f77bcf86cd799439011",
-                "email": "user@example.com",
-                "created_at": "2024-01-15T10:30:00"
-            }
-        }
-
-
-class ContactSubmissionResponse(BaseModel):
-    """Contact submission response"""
-    id: str
-    name: str
-    email: str
-    message: str
-    created_at: datetime
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "id": "507f1f77bcf86cd799439011",
-                "name": "John Doe",
-                "email": "john@example.com",
-                "message": "I'm interested in becoming a partner.",
-                "created_at": "2024-01-15T10:30:00"
             }
         }
 
@@ -304,7 +277,7 @@ async def submit_contact(payload: ContactPayload):
         raise HTTPException(status_code=500, detail="Failed to submit message")
 
 
-@app.get("/api/contact/{contact_id}", response_model=ContactSubmissionResponse)
+@app.get("/api/contact/{contact_id}")
 async def get_contact(contact_id: str):
     """Get specific contact submission by ID"""
     try:
@@ -327,7 +300,7 @@ async def get_contact(contact_id: str):
         raise HTTPException(status_code=500, detail="Failed to retrieve contact")
 
 
-@app.get("/api/contact", response_model=dict)
+@app.get("/api/contact")
 async def get_all_contacts(skip: int = 0, limit: int = 100):
     """
     Get all contact submissions (admin endpoint).
@@ -364,29 +337,6 @@ async def get_all_contacts(skip: int = 0, limit: int = 100):
         raise HTTPException(status_code=500, detail="Failed to retrieve contacts")
 
 
-# ========== ERROR HANDLERS ==========
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
-    """Custom HTTP exception handler"""
-    logger.error(f"HTTP Exception: {exc.detail}")
-    return {
-        "ok": False,
-        "error": exc.detail,
-        "status_code": exc.status_code
-    }
-
-
-@app.exception_handler(Exception)
-async def general_exception_handler(request, exc):
-    """General exception handler"""
-    logger.error(f"Unhandled exception: {exc}")
-    return {
-        "ok": False,
-        "error": "Internal server error",
-        "status_code": 500
-    }
-
-
 # ========== STARTUP & SHUTDOWN ==========
 @app.on_event("startup")
 async def startup_event():
@@ -414,10 +364,11 @@ async def shutdown_event():
 # ========== RUN ==========
 if __name__ == "__main__":
     import uvicorn
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=int(os.getenv("PORT", 8000)),
-        reload=os.getenv("ENVIRONMENT") != "production",
+        port=port,
+        reload=False,  # Never reload in production
         log_level="info"
     )
