@@ -482,6 +482,8 @@ async def startup_event():
         waitlist_collection.create_index("email", unique=True)
         contact_collection.create_index("email")
         contact_collection.create_index("created_at")
+        venue_applications.create_index("email")  # ✅ ADD THIS
+        venue_applications.create_index("created_at")
         logger.info("✓ Database indexes created")
     except Exception as e:
         logger.warning(f"Index creation warning: {e}")
