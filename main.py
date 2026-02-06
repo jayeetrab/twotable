@@ -8,6 +8,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 from dotenv import load_dotenv
 import logging
+from typing import Optional 
 import sys
 
 load_dotenv()
@@ -39,6 +40,7 @@ except Exception as e:
 # Collections
 waitlist_collection = db["waitlist"]
 contact_collection = db["contact_submissions"]
+venue_applications = db["venue_applications"]
 
 # ========== FASTAPI SETUP ==========
 app = FastAPI(
@@ -103,6 +105,140 @@ class ContactPayload(BaseModel):
                 "message": "I'm interested in becoming a partner."
             }
         }
+# ========== VENUE APPLICATION ENDPOINTS ==========
+
+class VenueApplicationPayload(BaseModel):
+    """Venue application submission payload"""
+    venue: str
+    city: str
+    type: str
+    web: Optional[str] = None
+    contact: str
+    role: Optional[str] = None
+    email: EmailStr
+    phone: str
+    nights: str
+    capacity: str
+    payout: str
+    notes: Optional[str] = None
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "venue": "The Bistro",
+                "city": "Bristol",
+                "type": "fine-dining",
+                "web": "https://thebistro.com",
+                "contact": "John Smith",
+                "role": "Manager",
+                "email": "john@thebistro.com",
+                "phone": "+441173331111",
+                "nights": "Tue-Thu after 6pm",
+                "capacity": "3-4 tables for two",
+                "payout": "30-40",
+                "notes": "We're interested in testing this."
+            }
+        }
+
+
+@app.post("/api/venue-application")
+async def submit_venue_application(payload: VenueApplicationPayload):
+    """
+    Submit venue partnership application.
+    
+    Returns:
+    - ok: true if successful
+    - id: MongoDB document ID
+    - message: Status message
+    """
+    try:
+        doc = {
+            "venue": payload.venue.strip(),
+            "city": payload.city.strip(),
+            "type": payload.type,
+            "web": payload.web.strip() if payload.web else None,
+            "contact": payload.contact.strip(),
+            "role": payload.role.strip() if payload.role else None,
+            "email": payload.email.lower(),
+            "phone": payload.phone.strip(),
+            "nights": payload.nights.strip(),
+            "capacity": payload.capacity.strip(),
+            "payout": payload.payout,
+            "notes": payload.notes.strip() if payload.notes else None,
+            "created_at": datetime.utcnow(),
+            "status": "pending_review",
+        }
+        result = venue_applications.insert_one(doc)
+        logger.info(f"Venue application from: {payload.venue} ({payload.email})")
+        
+        return {
+            "ok": True,
+            "id": str(result.inserted_id),
+            "message": "Application submitted successfully. We'll review it within 2 business days.",
+        }
+    except Exception as e:
+        logger.error(f"Venue application error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to submit application")
+
+
+@app.get("/api/venue-application/{application_id}")
+async def get_venue_application(application_id: str):
+    """Get specific venue application by ID"""
+    try:
+        oid = ObjectId(application_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid application ID format")
+    
+    try:
+        application = venue_applications.find_one({"_id": oid})
+        if not application:
+            raise HTTPException(status_code=404, detail="Application not found")
+        
+        application["id"] = str(application["_id"])
+        del application["_id"]
+        return application
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Application query error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve application")
+
+
+@app.get("/api/venue-applications")
+async def get_all_venue_applications(skip: int = 0, limit: int = 100):
+    """
+    Get all venue applications (admin endpoint).
+    
+    Query params:
+    - skip: Number of entries to skip (default: 0)
+    - limit: Maximum entries to return (default: 100, max: 1000)
+    """
+    try:
+        if limit > 1000:
+            limit = 1000
+        
+        applications = list(
+            venue_applications.find({})
+            .skip(skip)
+            .limit(limit)
+            .sort("created_at", -1)
+        )
+        
+        for app in applications:
+            app["id"] = str(app["_id"])
+            del app["_id"]
+        
+        total = venue_applications.count_documents({})
+        return {
+            "applications": applications,
+            "total": total,
+            "skip": skip,
+            "limit": limit,
+            "returned": len(applications)
+        }
+    except Exception as e:
+        logger.error(f"Applications query error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve applications")
 
 
 class SuccessResponse(BaseModel):
